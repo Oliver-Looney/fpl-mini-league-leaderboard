@@ -24,11 +24,6 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         player_history.insert(player.entry, reqwest_client.get(format!("https://fantasy.premierleague.com/api/entry/{}/history/", player.entry)).send().await?.json().await?);
     }
 
-    for player in &league_standings.standings.results {
-        println!("{}", player.player_name);
-        println!("{:#?}", player_history[&player.entry].past);
-    }
-
     let league_history = get_result_seasons(&player_history, &league_standings);
     let league_standings = get_current_league_standings(league_standings, &player_history)?;
 
@@ -77,7 +72,7 @@ fn get_result_seasons(player_history: &HashMap<i64, WelcomePlayers>, league_stan
 
         result.push(new_season);
     }
-    println!("{:#?}",result);
+    // println!("{:#?}",result);
     result
 }
 
@@ -85,13 +80,20 @@ fn get_past_season_standings(years: &String, player_history: &HashMap<i64, Welco
     let mut standings : Vec<DetailedSeason> = Vec::new();
 
     for player in &league_standings.standings.results {
-        let player_result = DetailedSeason {
+        let mut player_result = DetailedSeason {
             entry_name: player.entry_name.clone(),
             player_name: player.player_name.clone(),
             points: 0,
             rank: 0,
             position: 0
         };
+
+        for players_past_season in &player_history[&player.entry].past {
+            if players_past_season.season_name != format!("20{}", years.as_str()) {continue}
+            // println!("{:#?}", players_past_season);
+            player_result.points = players_past_season.total_points;
+            player_result.rank = players_past_season.rank;
+        }
 
         standings.push(player_result);
 
