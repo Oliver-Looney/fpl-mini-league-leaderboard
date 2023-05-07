@@ -29,13 +29,14 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         println!("{:#?}", player_history[&player.entry].past);
     }
 
+    let league_history = get_result_seasons(&player_history, &league_standings);
     let league_standings = get_current_league_standings(league_standings, &player_history)?;
-    get_result_seasons(&player_history);
 
     let mut output_result = Output {
-        league_standings
+        league_standings,
+        league_history
     };
-    // println!("{:#?}\n\n\n", output_result);
+    println!("{:#?}\n\n\n", output_result);
     Ok(())
 }
 
@@ -58,7 +59,7 @@ fn get_current_league_standings(league_standings: Root, player_history: &HashMap
     Ok(result)
 }
 
-fn get_result_seasons(player_history: &HashMap<i64, WelcomePlayers>) {
+fn get_result_seasons(player_history: &HashMap<i64, WelcomePlayers>, league_standings: &Root) -> Vec<Season> {
     let curr_year_digits = Local::now().year()%100;
     let mut start = curr_year_digits - 2;
     let mut end = curr_year_digits - 1;
@@ -70,14 +71,33 @@ fn get_result_seasons(player_history: &HashMap<i64, WelcomePlayers>) {
         end -=1;
 
         let mut new_season: Season = Season {
-            years: fpl_year,
-            standings: Vec::new()
+            years: fpl_year.clone(),
+            standings: get_past_season_standings(&fpl_year, player_history, league_standings)
         };
-
 
         result.push(new_season);
     }
     println!("{:#?}",result);
+    result
+}
+
+fn get_past_season_standings(years: &String, player_history: &HashMap<i64, WelcomePlayers>, league_standings: &Root) -> Vec<DetailedSeason> {
+    let mut standings : Vec<DetailedSeason> = Vec::new();
+
+    for player in &league_standings.standings.results {
+        let player_result = DetailedSeason {
+            entry_name: player.entry_name.clone(),
+            player_name: player.player_name.clone(),
+            points: 0,
+            rank: 0,
+            position: 0
+        };
+
+        standings.push(player_result);
+
+    }
+
+    standings
 }
 
 fn sort_by_total_points(mut league_standings: Vec<PlayerPositions>) -> Vec<PlayerPositions> {
