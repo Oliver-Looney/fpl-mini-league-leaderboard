@@ -3,7 +3,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Output {
     pub league_standings: Vec<PlayerPositions>,
-    // pub history: Vec<Season>
+    // pub league_history: Vec<Season>
 }
 
 #[derive(Debug, Serialize, Deserialize)]

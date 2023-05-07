@@ -5,12 +5,13 @@
 mod constants;
 
 use std::collections::HashMap;
+use chrono::{Datelike, Local};
 use reqwest::Client;
 use league_standings::{Root};
 use result_struct::{Output};
 use crate::constants::MY_FRIEND_LEAGUE_ID;
 use crate::player::WelcomePlayers;
-use crate::result_struct::{PlayerPositions};
+use crate::result_struct::{DetailedSeason, PlayerPositions, Season};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -28,7 +29,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         println!("{:#?}", player_history[&player.entry].past);
     }
 
-    let league_standings = get_current_league_standings(league_standings, player_history)?;
+    let league_standings = get_current_league_standings(league_standings, &player_history)?;
+    get_result_seasons(&player_history);
 
     let mut output_result = Output {
         league_standings
@@ -37,7 +39,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 
-fn get_current_league_standings(league_standings: Root, player_history: HashMap<i64, WelcomePlayers>) ->  Result<Vec<PlayerPositions>, Box<dyn std::error::Error>>{
+fn get_current_league_standings(league_standings: Root, player_history: &HashMap<i64, WelcomePlayers>) ->  Result<Vec<PlayerPositions>, Box<dyn std::error::Error>>{
     let mut result: Vec<PlayerPositions> = Vec::new();
     for player in league_standings.standings.results {
         let history: &WelcomePlayers = &player_history[&player.entry];
@@ -54,6 +56,28 @@ fn get_current_league_standings(league_standings: Root, player_history: HashMap<
     }
     result = sort_by_total_points(result);
     Ok(result)
+}
+
+fn get_result_seasons(player_history: &HashMap<i64, WelcomePlayers>) {
+    let curr_year_digits = Local::now().year()%100;
+    let mut start = curr_year_digits - 2;
+    let mut end = curr_year_digits - 1;
+    let mut result: Vec<Season> = Vec::new();
+
+    while start >= 20 {
+        let fpl_year = format!("{}/{}",start,end);
+        start -=1;
+        end -=1;
+
+        let mut new_season: Season = Season {
+            years: fpl_year,
+            standings: Vec::new()
+        };
+
+
+        result.push(new_season);
+    }
+    println!("{:#?}",result);
 }
 
 fn sort_by_total_points(mut league_standings: Vec<PlayerPositions>) -> Vec<PlayerPositions> {
