@@ -1,44 +1,72 @@
 #[path = "models/league_standings.rs"] mod league_standings;
+#[path = "models/event_status.rs"] mod event_status;
+#[path = "models/player.rs"] mod player;
 #[path = "models/result_struct.rs"] mod result_struct;
 mod constants;
 
+use std::collections::HashMap;
 use reqwest::Client;
 use league_standings::{Root};
 use result_struct::{Output};
 use crate::constants::MY_FRIEND_LEAGUE_ID;
-use crate::result_struct::PlayerLeaderboardPosition;
+use crate::player::WelcomePlayers;
+use crate::result_struct::{PlayerPositions};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("Hello, world!");
     let reqwest_client = Client::new();
-    let league_standings: Root = reqwest_client.get(format!("https://fantasy.premierleague.com/api/leagues-classic/{}/standings/",MY_FRIEND_LEAGUE_ID)).send().await?.json().await?;
-    // println!("{:#?}", league_standings);
-    let mut output_result: Output;
-    output_result.leaderboard = write_overall_leaderboard();
-    // println!("{:#?}", output_result);
+    let league_standings: Root = reqwest_client.get(format!("https://fantasy.premierleague.com/api/leagues-classic/{}/standings/", MY_FRIEND_LEAGUE_ID)).send().await?.json().await?;
+
+    let mut player_history: HashMap<i64, WelcomePlayers>= HashMap::new();
+    for player in &league_standings.standings.results {
+        player_history.insert(player.entry, reqwest_client.get(format!("https://fantasy.premierleague.com/api/entry/{}/history/", player.entry)).send().await?.json().await?);
+    }
+
+    for player in &league_standings.standings.results {
+        println!("{}", player.player_name);
+        println!("{:#?}", player_history[&player.entry].past);
+    }
+
+    let league_standings = get_current_league_standings(league_standings, player_history)?;
+
+    let mut output_result = Output {
+        league_standings
+    };
+    // println!("{:#?}\n\n\n", output_result);
     Ok(())
 }
 
-fn write_overall_leaderboard() -> Vec<PlayerLeaderboardPosition> {
-    return vec![
-        PlayerLeaderboardPosition {
-            player_name: "Oliver".parse().unwrap(),
-            total_wins: 1
-        },
-        PlayerLeaderboardPosition {
-            player_name: "Daniel".parse().unwrap(),
-            total_wins: 1
-        },
-        PlayerLeaderboardPosition {
-            player_name: "Declan".parse().unwrap(),
-            total_wins: 0
-        },
-        PlayerLeaderboardPosition {
-            player_name: "Thomas".parse().unwrap(),
-            total_wins: 0
-        },
-    ];
+fn get_current_league_standings(league_standings: Root, player_history: HashMap<i64, WelcomePlayers>) ->  Result<Vec<PlayerPositions>, Box<dyn std::error::Error>>{
+    let mut result: Vec<PlayerPositions> = Vec::new();
+    for player in league_standings.standings.results {
+        let history: &WelcomePlayers = &player_history[&player.entry];
+        let current_gameweek = history.current.len()-1;
+        result.push(PlayerPositions {
+            event_total: history.current[current_gameweek]["points"].unwrap(),
+            player_name: player.player_name,
+            rank: player.rank,
+            last_rank: player.last_rank,
+            rank_sort: player.rank_sort,
+            total:  history.current[current_gameweek]["total_points"].unwrap(),
+            entry_name: player.entry_name,
+        });
+    }
+    result = sort_by_total_points(result);
+    Ok(result)
 }
 
-
+fn sort_by_total_points(mut league_standings: Vec<PlayerPositions>) -> Vec<PlayerPositions> {
+    league_standings.sort_by_key(|player| std::cmp::Reverse(player.total));
+    let mut rank = 1;
+    let mut last_total = league_standings[0].total;
+    for player in league_standings.iter_mut() {
+        if player.total < last_total {
+            rank += 1;
+        }
+        player.rank = rank;
+        player.last_rank = player.rank;
+        last_total = player.total;
+    }
+    league_standings
+}

@@ -3,8 +3,7 @@ use serde::{Deserialize, Serialize};
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Output {
     pub league_standings: Vec<PlayerPositions>,
-    pub leaderboard: Vec<PlayerLeaderboardPosition>,
-    pub history: Vec<Season>
+    // pub history: Vec<Season>
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -16,12 +15,6 @@ pub struct PlayerPositions {
     pub rank_sort: i64,
     pub total: i64,
     pub entry_name: String,
-}
-
-#[derive(Debug, Serialize, Deserialize)]
-pub struct PlayerLeaderboardPosition {
-    pub player_name: String,
-    pub total_wins: i64
 }
 
 #[derive(Debug, Serialize, Deserialize)]

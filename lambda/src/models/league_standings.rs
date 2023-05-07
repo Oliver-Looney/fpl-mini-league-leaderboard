@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use crate::player::WelcomePlayers;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Root {
