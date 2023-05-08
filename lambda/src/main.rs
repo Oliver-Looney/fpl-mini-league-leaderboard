@@ -5,6 +5,8 @@
 mod constants;
 
 use std::collections::HashMap;
+use aws_lambda_events::apigw::{ApiGatewayProxyRequest, ApiGatewayProxyResponse};
+use aws_lambda_events::encodings::Body;
 use chrono::{Datelike, Local};
 use reqwest::Client;
 use league_standings::{Root};
@@ -12,19 +14,35 @@ use result_struct::{Output};
 use crate::constants::MY_FRIEND_LEAGUE_ID;
 use crate::player::WelcomePlayers;
 use crate::result_struct::{DetailedSeason, PlayerPositions, Season};
+use lambda_runtime::{Error, LambdaEvent};
+use serde_json::json;
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn std::error::Error>> {
+async fn main() -> Result<(), Error>{
+    let lambda_handler = lambda_runtime::service_fn(handler);
+    lambda_runtime::run(lambda_handler).await?;
+    Ok(())
+}
+
+async fn handler(_lambda_event: LambdaEvent<ApiGatewayProxyRequest>) -> Result<ApiGatewayProxyResponse, Error> {
     let (league_standings, player_history): (Root, HashMap<i64, WelcomePlayers>) = get_league_standings_and_player_history_from_api().await?;
 
     let output_result = Output {
         league_standings: get_current_league_standings(&league_standings, &player_history)?,
         league_history: get_result_seasons(&player_history, &league_standings)?
     };
-    Ok(())
+    return Ok(ApiGatewayProxyResponse{
+        status_code: 200,
+        headers: Default::default(),
+        multi_value_headers: Default::default(),
+        body: Some(
+            Body::Text(
+                json!(output_result).to_string())),
+        is_base64_encoded: Some(false),
+    })
 }
 
-async fn get_league_standings_and_player_history_from_api() -> Result<(Root, HashMap<i64, WelcomePlayers>), Box<dyn std::error::Error>> {
+async fn get_league_standings_and_player_history_from_api() -> Result<(Root, HashMap<i64, WelcomePlayers>), Error> {
     let reqwest_client = Client::new();
     let league_standings: Root = reqwest_client.get(format!("https://fantasy.premierleague.com/api/leagues-classic/{}/standings/", MY_FRIEND_LEAGUE_ID)).send().await?.json().await?;
 
@@ -35,7 +53,7 @@ async fn get_league_standings_and_player_history_from_api() -> Result<(Root, Has
     Ok((league_standings, player_history))
 }
 
-fn get_current_league_standings(league_standings: &Root, player_history: &HashMap<i64, WelcomePlayers>) ->  Result<Vec<PlayerPositions>, Box<dyn std::error::Error>>{
+fn get_current_league_standings(league_standings: &Root, player_history: &HashMap<i64, WelcomePlayers>) ->  Result<Vec<PlayerPositions>, Error>{
     let mut result: Vec<PlayerPositions> = Vec::new();
     for player in &league_standings.standings.results {
         let history: &WelcomePlayers = &player_history[&player.entry];
@@ -54,7 +72,7 @@ fn get_current_league_standings(league_standings: &Root, player_history: &HashMa
     Ok(result)
 }
 
-fn get_result_seasons(player_history: &HashMap<i64, WelcomePlayers>, league_standings: &Root) -> Result<Vec<Season>, Box<dyn std::error::Error>> {
+fn get_result_seasons(player_history: &HashMap<i64, WelcomePlayers>, league_standings: &Root) -> Result<Vec<Season>, Error> {
     let mut start =  Local::now().year() - 2;
     let mut end =  Local::now().year()%100 - 1;
     let mut result: Vec<Season> = Vec::new();
