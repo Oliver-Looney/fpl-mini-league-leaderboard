@@ -1,0 +1,54 @@
+[
+  {
+    "standings": [
+      {
+        "entry_name": "Invincibulls",
+        "player_name": "Daniel Rafferty",
+        "points": 2179,
+        "position": 1,
+        "rank": 1334874
+      },
+      {
+        "entry_name": "it was raining",
+        "player_name": "Declan Mallon",
+        "points": 2140,
+        "position": 2,
+        "rank": 1616263
+      },
+      {
+        "entry_name": "Fantasy Crew 2",
+        "player_name": "Oliver Looney",
+        "points": 1998,
+        "position": 3,
+        "rank": 2812584
+      }
+    ],
+    "years": "2021/22"
+  },
+  {
+    "standings": [
+      {
+        "entry_name": "Fantasy Crew 2",
+        "player_name": "Oliver Looney",
+        "points": 2106,
+        "position": 1,
+        "rank": 1647658
+      },
+      {
+        "entry_name": "Invincibulls",
+        "player_name": "Daniel Rafferty",
+        "points": 2002,
+        "position": 2,
+        "rank": 2603965
+      },
+      {
+        "entry_name": "it was raining",
+        "player_name": "Declan Mallon",
+        "points": 1910,
+        "position": 3,
+        "rank": 3494566
+      }
+    ],
+    "years": "2020/21"
+  }
+]
