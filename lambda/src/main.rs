@@ -15,52 +15,51 @@ use crate::result_struct::{DetailedSeason, PlayerPositions, Season};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
-    println!("Hello, world!");
-    let reqwest_client = Client::new();
-    let league_standings: Root = reqwest_client.get(format!("https://fantasy.premierleague.com/api/leagues-classic/{}/standings/", MY_FRIEND_LEAGUE_ID)).send().await?.json().await?;
+    let (league_standings, player_history): (Root, HashMap<i64, WelcomePlayers>) = get_league_standings_and_player_history_from_api().await?;
 
-    let mut player_history: HashMap<i64, WelcomePlayers>= HashMap::new();
-    for player in &league_standings.standings.results {
-        player_history.insert(player.entry, reqwest_client.get(format!("https://fantasy.premierleague.com/api/entry/{}/history/", player.entry)).send().await?.json().await?);
-    }
-
-    let league_history = get_result_seasons(&player_history, &league_standings);
-    let league_standings = get_current_league_standings(league_standings, &player_history)?;
-
-    let mut output_result = Output {
-        league_standings,
-        league_history
+    let output_result = Output {
+        league_standings: get_current_league_standings(&league_standings, &player_history)?,
+        league_history: get_result_seasons(&player_history, &league_standings)?
     };
-    println!("{:#?}\n\n\n", output_result);
     Ok(())
 }
 
-fn get_current_league_standings(league_standings: Root, player_history: &HashMap<i64, WelcomePlayers>) ->  Result<Vec<PlayerPositions>, Box<dyn std::error::Error>>{
+async fn get_league_standings_and_player_history_from_api() -> Result<(Root, HashMap<i64, WelcomePlayers>), Box<dyn std::error::Error>> {
+    let reqwest_client = Client::new();
+    let league_standings: Root = reqwest_client.get(format!("https://fantasy.premierleague.com/api/leagues-classic/{}/standings/", MY_FRIEND_LEAGUE_ID)).send().await?.json().await?;
+
+    let mut player_history: HashMap<i64, WelcomePlayers> = HashMap::new();
+    for player in &league_standings.standings.results {
+        player_history.insert(player.entry, reqwest_client.get(format!("https://fantasy.premierleague.com/api/entry/{}/history/", player.entry)).send().await?.json().await?);
+    }
+    Ok((league_standings, player_history))
+}
+
+fn get_current_league_standings(league_standings: &Root, player_history: &HashMap<i64, WelcomePlayers>) ->  Result<Vec<PlayerPositions>, Box<dyn std::error::Error>>{
     let mut result: Vec<PlayerPositions> = Vec::new();
-    for player in league_standings.standings.results {
+    for player in &league_standings.standings.results {
         let history: &WelcomePlayers = &player_history[&player.entry];
         let current_gameweek = history.current.len()-1;
         result.push(PlayerPositions {
             event_total: history.current[current_gameweek]["points"].unwrap(),
-            player_name: player.player_name,
+            player_name: player.player_name.clone(),
             rank: player.rank,
             last_rank: player.last_rank,
             rank_sort: player.rank_sort,
             total:  history.current[current_gameweek]["total_points"].unwrap(),
-            entry_name: player.entry_name,
+            entry_name: player.entry_name.clone(),
         });
     }
     result = sort_by_total_points(result);
     Ok(result)
 }
 
-fn get_result_seasons(player_history: &HashMap<i64, WelcomePlayers>, league_standings: &Root) -> Vec<Season> {
-    let curr_year_digits = Local::now().year()%100;
-    let mut start = curr_year_digits - 2;
-    let mut end = curr_year_digits - 1;
+fn get_result_seasons(player_history: &HashMap<i64, WelcomePlayers>, league_standings: &Root) -> Result<Vec<Season>, Box<dyn std::error::Error>> {
+    let mut start =  Local::now().year() - 2;
+    let mut end =  Local::now().year()%100 - 1;
     let mut result: Vec<Season> = Vec::new();
 
-    while start >= 20 {
+    while start >= 2020 {
         let fpl_year = format!("{}/{}",start,end);
         start -=1;
         end -=1;
@@ -69,11 +68,11 @@ fn get_result_seasons(player_history: &HashMap<i64, WelcomePlayers>, league_stan
             years: fpl_year.clone(),
             standings: get_past_season_standings(&fpl_year, player_history, league_standings)
         };
+        sort_seasons_by_points(&mut new_season.standings);
 
         result.push(new_season);
     }
-    // println!("{:#?}",result);
-    result
+    Ok(result)
 }
 
 fn get_past_season_standings(years: &String, player_history: &HashMap<i64, WelcomePlayers>, league_standings: &Root) -> Vec<DetailedSeason> {
@@ -89,16 +88,13 @@ fn get_past_season_standings(years: &String, player_history: &HashMap<i64, Welco
         };
 
         for players_past_season in &player_history[&player.entry].past {
-            if players_past_season.season_name != format!("20{}", years.as_str()) {continue}
-            // println!("{:#?}", players_past_season);
+            if players_past_season.season_name != years.as_str() {continue}
             player_result.points = players_past_season.total_points;
             player_result.rank = players_past_season.rank;
+            standings.push(player_result);
+            break;
         }
-
-        standings.push(player_result);
-
     }
-
     standings
 }
 
@@ -115,4 +111,11 @@ fn sort_by_total_points(mut league_standings: Vec<PlayerPositions>) -> Vec<Playe
         last_total = player.total;
     }
     league_standings
+}
+
+fn sort_seasons_by_points(standings: &mut Vec<DetailedSeason>) {
+    standings.sort_by(|a, b| b.points.cmp(&a.points));
+    for (i, season) in standings.iter_mut().enumerate() {
+        season.position = i as i64 + 1;
+    }
 }
