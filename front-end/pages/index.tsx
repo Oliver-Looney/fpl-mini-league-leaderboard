@@ -2,6 +2,7 @@ import Head from 'next/head'
 import {FplMiniLeagueAPIResponse} from "@/utils/types";
 import {useEffect, useState} from "react";
 import axios from "axios";
+import CurrentLeagueTable from "@/components/CurrentLeagueTable";
 export default function Home() {
     async function fetchFplMiniLeagueApiData(): Promise<FplMiniLeagueAPIResponse> {
         try {
@@ -39,6 +40,9 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
+        <div>
+            <CurrentLeagueTable data={apiData}/>
+        </div>
     </>
   )
 }
