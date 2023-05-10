@@ -29,5 +29,6 @@ interface LeagueStanding {
 export type {
     FplMiniLeagueAPIResponse,
     LeagueStanding,
-    LeagueHistory
+    LeagueHistory,
+    Standing
 }

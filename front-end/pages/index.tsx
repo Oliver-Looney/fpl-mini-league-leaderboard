@@ -4,6 +4,8 @@ import {useEffect, useState} from "react";
 import axios from "axios";
 import CurrentLeagueTable from "@/components/CurrentLeagueTable";
 import LeagueHistory from "@/components/LeagueHistory";
+import DetailedHistoryTable from "@/components/DetailedLeagueHistory";
+import LeaderBoard from "@/components/LeaderBoard";
 export default function Home() {
     async function fetchFplMiniLeagueApiData(): Promise<FplMiniLeagueAPIResponse> {
         try {
@@ -46,6 +48,10 @@ export default function Home() {
             <CurrentLeagueTable data={apiData.league_standings}/>
             <br/>
             <LeagueHistory data={apiData.league_history}/>
+            <br/>
+            <DetailedHistoryTable data={apiData.league_history}/>
+            <br/>
+            <LeaderBoard data={apiData}/>
         </div>
     </>
   )
