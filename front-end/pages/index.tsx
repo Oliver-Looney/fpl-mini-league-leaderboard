@@ -1,11 +1,36 @@
 import Head from 'next/head'
-import Image from 'next/image'
-import { Inter } from 'next/font/google'
-import styles from '@/styles/Home.module.css'
-
-const inter = Inter({ subsets: ['latin'] })
-
+import {FplMiniLeagueAPIResponse} from "@/utils/types";
+import {useEffect, useState} from "react";
+import axios from "axios";
 export default function Home() {
+    async function fetchFplMiniLeagueApiData(): Promise<FplMiniLeagueAPIResponse> {
+        try {
+            const response = await axios.get<FplMiniLeagueAPIResponse>('https://43vewwe578.execute-api.eu-west-1.amazonaws.com/default/fpl-mini-league-api');
+            return response.data;
+        } catch (error) {
+            console.error(error);
+            throw error;
+        }
+    }
+
+    const [apiData, setApiData] = useState<FplMiniLeagueAPIResponse | null>(null);
+
+    useEffect(() => {
+        async function fetchData() {
+            const data = await fetchFplMiniLeagueApiData();
+            setApiData(data);
+        }
+
+        fetchData();
+    }, []);
+
+    if (!apiData) {
+        return <div>Loading...</div>;
+    }
+    else {
+        console.log(apiData)
+    }
+
   return (
     <>
       <Head>
@@ -14,9 +39,6 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <main className={styles.main}>
-          Hello World
-      </main>
     </>
   )
 }
