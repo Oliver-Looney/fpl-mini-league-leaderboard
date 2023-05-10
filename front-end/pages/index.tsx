@@ -6,6 +6,7 @@ import CurrentLeagueTable from "@/components/CurrentLeagueTable";
 import LeagueHistory from "@/components/LeagueHistory";
 import DetailedHistoryTable from "@/components/DetailedLeagueHistory";
 import LeaderBoard from "@/components/LeaderBoard";
+import CurrentWinner from "@/components/CurrentWinner";
 export default function Home() {
     async function fetchFplMiniLeagueApiData(): Promise<FplMiniLeagueAPIResponse> {
         try {
@@ -52,6 +53,8 @@ export default function Home() {
             <DetailedHistoryTable data={apiData.league_history}/>
             <br/>
             <LeaderBoard data={apiData}/>
+            <br/>
+            <CurrentWinner data={apiData.league_history}/>
         </div>
     </>
   )
