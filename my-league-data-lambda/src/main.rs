@@ -1,14 +1,13 @@
-#[path = "models/league_standings.rs"] mod league_standings;
-#[path = "models/event_status.rs"] mod event_status;
-#[path = "models/player.rs"] mod player;
-#[path = "models/result_struct.rs"] mod result_struct;
 mod constants;
+mod league_standings;
+mod player;
+mod result_struct;
 
 use std::collections::HashMap;
 use aws_lambda_events::apigw::{ApiGatewayProxyRequest, ApiGatewayProxyResponse};
+use aws_lambda_events::chrono;
 use aws_lambda_events::encodings::Body;
-use chrono::{Datelike, Local};
-use reqwest::Client;
+use chrono::{Datelike};
 use league_standings::{Root};
 use result_struct::{Output};
 use crate::constants::MY_FRIEND_LEAGUE_ID;
@@ -43,12 +42,19 @@ async fn handler(_lambda_event: LambdaEvent<ApiGatewayProxyRequest>) -> Result<A
 }
 
 async fn get_league_standings_and_player_history_from_api() -> Result<(Root, HashMap<i64, WelcomePlayers>), Error> {
-    let reqwest_client = Client::new();
-    let league_standings: Root = reqwest_client.get(format!("https://fantasy.premierleague.com/api/leagues-classic/{}/standings/", MY_FRIEND_LEAGUE_ID)).send().await?.json().await?;
+    let body = ureq::get(&format!("https://fantasy.premierleague.com/api/leagues-classic/{}/standings/", MY_FRIEND_LEAGUE_ID))
+        .call()?
+        .into_string()?;
+    let league_standings: Root = serde_json::from_str(&body)?;
 
     let mut player_history: HashMap<i64, WelcomePlayers> = HashMap::new();
     for player in &league_standings.standings.results {
-        player_history.insert(player.entry, reqwest_client.get(format!("https://fantasy.premierleague.com/api/entry/{}/history/", player.entry)).send().await?.json().await?);
+        let body = ureq::get(&format!("https://fantasy.premierleague.com/api/entry/{}/history/", player.entry)).call()?.into_string()?;
+        let player_from_fpl: WelcomePlayers = serde_json::from_str(&body)?;
+        player_history.insert(
+            player.entry,
+            player_from_fpl
+        );
     }
     Ok((league_standings, player_history))
 }
@@ -73,8 +79,8 @@ fn get_current_league_standings(league_standings: &Root, player_history: &HashMa
 }
 
 fn get_result_seasons(player_history: &HashMap<i64, WelcomePlayers>, league_standings: &Root) -> Result<Vec<Season>, Error> {
-    let mut start =  Local::now().year() - 2;
-    let mut end =  Local::now().year()%100 - 1;
+    let mut start =  chrono::Local::now().year() - 2;
+    let mut end =  chrono::Local::now().year()%100 - 1;
     let mut result: Vec<Season> = Vec::new();
 
     while start >= 2020 {
