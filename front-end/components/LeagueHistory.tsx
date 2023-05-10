@@ -2,16 +2,16 @@ import {LeagueHistory} from "@/utils/types";
 import React from "react";
 
 interface Props {
-    data: LeagueHistory[];
+    league_history: LeagueHistory[];
 }
 
-const LeagueHistoryTable: React.FC<Props> = ({ data }) => {
-    const history = data.map((season) => ({
+const LeagueHistoryTable: React.FC<Props> = ({ league_history }) => {
+    const history = league_history.map((season) => ({
         year: season.years,
         player: season.standings[0].player_name,
     }));
 
-    return (<>
+    return (<div className="card">
         <h2>History</h2>
         <table>
             <thead>
@@ -29,7 +29,7 @@ const LeagueHistoryTable: React.FC<Props> = ({ data }) => {
             ))}
             </tbody>
         </table>
-        </>
+        </div>
     );
 };
 

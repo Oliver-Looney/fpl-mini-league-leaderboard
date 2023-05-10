@@ -2,12 +2,12 @@ import {LeagueStanding} from "@/utils/types";
 import React from "react";
 
 interface Props {
-    data: LeagueStanding[];
+    current_league_standings: LeagueStanding[];
 }
 
-const CurrentLeagueTable: React.FC<Props> = ({ data }) => {
+const CurrentLeagueTable: React.FC<Props> = ({ current_league_standings }) => {
 
-    return (<>
+    return (<div className="card">
         <h2>Current Standings</h2>
         <table>
             <thead>
@@ -20,7 +20,7 @@ const CurrentLeagueTable: React.FC<Props> = ({ data }) => {
             </tr>
             </thead>
             <tbody>
-            {data.map((standing, index) => (
+            {current_league_standings.map((standing, index) => (
                 <tr key={standing.entry_name}>
                     <td>{standing.rank}</td>
                     <td>{standing.entry_name}</td>
@@ -31,7 +31,7 @@ const CurrentLeagueTable: React.FC<Props> = ({ data }) => {
             ))}
             </tbody>
         </table>
-        </>
+        </div>
     );
 };
 

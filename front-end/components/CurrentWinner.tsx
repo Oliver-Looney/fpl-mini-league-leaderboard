@@ -2,14 +2,15 @@ import {LeagueHistory} from "@/utils/types";
 import React from "react";
 
 interface Props {
-    data: LeagueHistory[];
+    league_history: LeagueHistory[];
 }
 
-const CurrentWinner: React.FC<Props> = ({ data }) => {
+const CurrentWinner: React.FC<Props> = ({ league_history }) => {
     return (
-        <div>
+        <div className="card">
             <h2>Current Winner:</h2>
-            <p>{data[0].standings[0].player_name}</p>
+            <h3>{league_history[0].standings[0].player_name}</h3>
+            <h4>{league_history[0].standings[0].entry_name}</h4>
             <img src="league_trophy.jpg" height="500px" width="300px" alt="league trophy"/>
         </div>
     );

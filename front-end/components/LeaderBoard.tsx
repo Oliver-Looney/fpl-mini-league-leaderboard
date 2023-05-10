@@ -30,11 +30,11 @@ const LeaderBoard: FC<Props> = ({ data }) => {
     const sortedPlayers = Object.entries(playerWins).sort((a, b) => b[1] - a[1]);
 
     return (
-        <div>
+        <div className="card">
             <h2>Leaderboard</h2>
             {sortedPlayers.map(([player, wins], index) => (
                 <div key={index}>
-                    {player} {wins}
+                    {player}: {wins}
                 </div>
             ))}
         </div>

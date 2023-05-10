@@ -7,6 +7,8 @@ import LeagueHistory from "@/components/LeagueHistory";
 import DetailedHistoryTable from "@/components/DetailedLeagueHistory";
 import LeaderBoard from "@/components/LeaderBoard";
 import CurrentWinner from "@/components/CurrentWinner";
+import Header from "@/components/Header";
+
 export default function Home() {
     async function fetchFplMiniLeagueApiData(): Promise<FplMiniLeagueAPIResponse> {
         try {
@@ -44,17 +46,20 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
+        <Header/>
+        <div className="container">
         <h1>The David Goggins Invitational</h1>
         <div>
-            <CurrentLeagueTable data={apiData.league_standings}/>
+            <CurrentLeagueTable current_league_standings={apiData.league_standings}/>
             <br/>
-            <LeagueHistory data={apiData.league_history}/>
+            <LeagueHistory league_history={apiData.league_history}/>
             <br/>
-            <DetailedHistoryTable data={apiData.league_history}/>
+            <DetailedHistoryTable league_history={apiData.league_history}/>
             <br/>
             <LeaderBoard data={apiData}/>
             <br/>
-            <CurrentWinner data={apiData.league_history}/>
+            <CurrentWinner league_history={apiData.league_history}/>
+        </div>
         </div>
     </>
   )
