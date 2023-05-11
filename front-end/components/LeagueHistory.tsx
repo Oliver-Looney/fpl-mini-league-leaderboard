@@ -17,14 +17,14 @@ const LeagueHistoryTable: React.FC<Props> = ({ league_history }) => {
             <thead>
             <tr>
                 <th>Year</th>
-                <th>Player</th>
+                <th>Manager</th>
             </tr>
             </thead>
             <tbody>
             {history.map((entry, index) => (
                 <tr key={index}>
                     <td>{entry.year}</td>
-                    <td>{entry.player}</td>
+                    <td>{entry.player.split(' ')[0]}</td>
                 </tr>
             ))}
             </tbody>

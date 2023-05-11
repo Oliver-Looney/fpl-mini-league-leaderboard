@@ -34,7 +34,7 @@ const LeaderBoard: FC<Props> = ({ data }) => {
             <h2>Leaderboard</h2>
             {sortedPlayers.map(([player, wins], index) => (
                 <div key={index}>
-                    {player}: {wins}
+                    {player.split(' ')[0]}: {wins}
                 </div>
             ))}
         </div>

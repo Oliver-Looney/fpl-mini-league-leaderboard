@@ -34,10 +34,6 @@ export default function Home() {
     if (!apiData) {
         return <div>Loading...</div>;
     }
-    else {
-        console.log(apiData)
-    }
-
   return (
     <>
       <Head>
@@ -60,6 +56,7 @@ export default function Home() {
             <br/>
             <CurrentWinner league_history={apiData.league_history}/>
         </div>
+            <br/>
         </div>
     </>
   )

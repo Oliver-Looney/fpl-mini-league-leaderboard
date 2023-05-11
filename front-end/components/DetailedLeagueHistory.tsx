@@ -11,13 +11,13 @@ const DetailedHistoryTable: React.FC<Props> = ({ league_history }) => {
             <h2>Detailed History</h2>
             {league_history.map((season, index) => (
                 <div key={index} className="card">
-                    <h3>{season.years}</h3>
+                    <h3 className="post-date">{season.years}</h3>
                     <table>
                         <thead>
                         <tr>
                             <th>Rank</th>
                             <th>Team Name</th>
-                            <th>Player Name</th>
+                            <th>Manager</th>
                             <th>Total Points</th>
                         </tr>
                         </thead>
@@ -26,7 +26,7 @@ const DetailedHistoryTable: React.FC<Props> = ({ league_history }) => {
                             <tr key={index}>
                                 <td>{standing.position}</td>
                                 <td>{standing.entry_name}</td>
-                                <td>{standing.player_name}</td>
+                                <td>{standing.player_name.split(' ')[0]}</td>
                                 <td>{standing.points}</td>
                             </tr>
                         ))}

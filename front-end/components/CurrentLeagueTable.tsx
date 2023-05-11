@@ -14,8 +14,8 @@ const CurrentLeagueTable: React.FC<Props> = ({ current_league_standings }) => {
             <tr>
                 <th>Rank</th>
                 <th>Team Name</th>
-                <th>Player Name</th>
-                <th>Event Total</th>
+                <th>Manager</th>
+                <th>Current GW</th>
                 <th>Total Points</th>
             </tr>
             </thead>
@@ -24,7 +24,7 @@ const CurrentLeagueTable: React.FC<Props> = ({ current_league_standings }) => {
                 <tr key={standing.entry_name}>
                     <td>{standing.rank}</td>
                     <td>{standing.entry_name}</td>
-                    <td>{standing.player_name}</td>
+                    <td>{standing.player_name.split(' ')[0]}</td>
                     <td>{standing.event_total}</td>
                     <td>{standing.total}</td>
                 </tr>
