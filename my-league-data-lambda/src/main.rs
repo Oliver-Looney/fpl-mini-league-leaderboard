@@ -65,12 +65,12 @@ fn get_current_league_standings(league_standings: &Root, player_history: &HashMa
         let history: &WelcomePlayers = &player_history[&player.entry];
         let current_gameweek = history.current.len()-1;
         result.push(PlayerPositions {
-            event_total: history.current[current_gameweek]["points"].unwrap(),
+            event_total: history.current[current_gameweek].points,
             player_name: player.player_name.clone(),
             rank: player.rank,
             last_rank: player.last_rank,
             rank_sort: player.rank_sort,
-            total:  history.current[current_gameweek]["total_points"].unwrap(),
+            total:  history.current[current_gameweek].total_points,
             entry_name: player.entry_name.clone(),
         });
     }
