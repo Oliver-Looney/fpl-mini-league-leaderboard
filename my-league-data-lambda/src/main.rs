@@ -2,6 +2,7 @@ mod constants;
 mod league_standings;
 mod player;
 mod result_struct;
+mod event_status;
 
 use std::collections::HashMap;
 use aws_lambda_events::apigw::{ApiGatewayProxyRequest, ApiGatewayProxyResponse};
@@ -15,6 +16,7 @@ use crate::player::WelcomePlayers;
 use crate::result_struct::{DetailedSeason, EventHistory, PlayerPositions, Season};
 use lambda_runtime::{Error, LambdaEvent};
 use serde_json::json;
+use crate::event_status::EventStatus;
 
 #[tokio::main]
 async fn main() -> Result<(), Error>{
@@ -57,6 +59,18 @@ async fn get_league_standings_and_player_history_from_api() -> Result<(Root, Has
         );
     }
     Ok((league_standings, player_history))
+}
+
+fn check_event_status() -> Result<bool, Error>{
+    let event_status: EventStatus = serde_json::from_str(&ureq::get("https://fantasy.premierleague.com/api/event-status/").call()?.into_string()?)?;
+    let today = chrono::Local::now().format("%Y-%m-%d").to_string(); // get today's date in YYYY-MM-DD format
+
+    for status in &event_status.status {
+        if status.date == today {
+            return Ok(true); // return true if today's date is found in the status vector
+        }
+    }
+    Ok(false) // return false if today's date is not found in the status vector
 }
 
 fn get_current_league_standings(league_standings: &Root, player_history: &HashMap<i64, WelcomePlayers>) ->  Result<Vec<PlayerPositions>, Error>{

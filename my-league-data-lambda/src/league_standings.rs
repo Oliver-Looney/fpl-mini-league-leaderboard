@@ -1,10 +1,11 @@
+use chrono::{Datelike, DateTime, Local};
 use serde::{Deserialize, Serialize};
 use crate::player::WelcomePlayers;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Root {
     pub new_entries: NewEntries,
-    pub last_updated_data: String,
+    pub last_updated_data: DateTime<Local>,
     pub league: League,
     pub standings: NewEntries,
 }
