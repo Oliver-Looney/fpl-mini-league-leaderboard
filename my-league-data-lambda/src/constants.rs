@@ -1,1 +1,2 @@
-pub const MY_FRIEND_LEAGUE_ID: i32 = 423776;
+pub const MY_FRIEND_LEAGUE_ID: i64 = 423776;
+pub const NUMBER_OF_PLAYERS: i64 = 11422901;

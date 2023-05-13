@@ -15,6 +15,18 @@ pub struct PlayerPositions {
     pub rank_sort: i64,
     pub total: i64,
     pub entry_name: String,
+    pub events: Vec<EventHistory>
+}
+
+#[derive(Debug, Serialize, Deserialize)]
+pub struct EventHistory {
+    pub event: i64,
+    pub points: i64,
+    pub total_points: i64,
+    pub rank: i64,
+    pub overall_rank: i64,
+    pub rank_percentile: f64,
+    pub overall_rank_percentile: f64
 }
 
 #[derive(Debug, Serialize, Deserialize)]

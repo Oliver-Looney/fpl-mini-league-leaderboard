@@ -10,9 +10,9 @@ use aws_lambda_events::encodings::Body;
 use chrono::{Datelike};
 use league_standings::{Root};
 use result_struct::{Output};
-use crate::constants::MY_FRIEND_LEAGUE_ID;
+use crate::constants::{MY_FRIEND_LEAGUE_ID, NUMBER_OF_PLAYERS};
 use crate::player::WelcomePlayers;
-use crate::result_struct::{DetailedSeason, PlayerPositions, Season};
+use crate::result_struct::{DetailedSeason, EventHistory, PlayerPositions, Season};
 use lambda_runtime::{Error, LambdaEvent};
 use serde_json::json;
 
@@ -72,10 +72,44 @@ fn get_current_league_standings(league_standings: &Root, player_history: &HashMa
             rank_sort: player.rank_sort,
             total:  history.current[current_gameweek].total_points,
             entry_name: player.entry_name.clone(),
+            events: get_current_league_event_history(history, current_gameweek)
         });
     }
     result = sort_by_total_points(result);
     Ok(result)
+}
+
+fn get_current_league_event_history(player_history: &WelcomePlayers, current_gameweek: usize) -> Vec<EventHistory> {
+    let mut events: Vec<EventHistory> = Vec::new();
+    for i in 1..= current_gameweek {
+        let rank: i64 = player_history.current[i].rank.unwrap_or_else(|| {
+            if i > 1 {
+                player_history.current[i - 1].rank.unwrap_or(1)
+            } else {
+                1
+            }
+        });
+
+        let overall_rank: i64 = player_history.current[i].overall_rank.unwrap_or_else(|| {
+            if i > 1 {
+                player_history.current[i - 1].overall_rank.unwrap_or(1)
+            } else {
+                1
+            }
+        });
+        events.push(
+            EventHistory {
+                event: player_history.current[i].event,
+                points: player_history.current[i].points,
+                total_points: player_history.current[i].total_points,
+                rank,
+                overall_rank,
+                rank_percentile: (rank as f64 / NUMBER_OF_PLAYERS as f64) * 100.0,
+                overall_rank_percentile: (overall_rank as f64 / NUMBER_OF_PLAYERS as f64) * 100.0,
+            }
+        );
+    }
+    events
 }
 
 fn get_result_seasons(player_history: &HashMap<i64, WelcomePlayers>, league_standings: &Root) -> Result<Vec<Season>, Error> {
