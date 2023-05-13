@@ -3,6 +3,7 @@ mod league_standings;
 mod player;
 mod result_struct;
 mod event_status;
+mod live_event_data;
 
 use std::collections::HashMap;
 use aws_lambda_events::apigw::{ApiGatewayProxyRequest, ApiGatewayProxyResponse};
@@ -17,6 +18,7 @@ use crate::result_struct::{DetailedSeason, EventHistory, PlayerPositions, Season
 use lambda_runtime::{Error, LambdaEvent};
 use serde_json::json;
 use crate::event_status::EventStatus;
+use crate::live_event_data::{LiveEventData};
 
 #[tokio::main]
 async fn main() -> Result<(), Error>{
@@ -65,6 +67,7 @@ fn check_event_status() -> Result<bool, Error>{
     let event_status: EventStatus = serde_json::from_str(&ureq::get("https://fantasy.premierleague.com/api/event-status/").call()?.into_string()?)?;
     let today = chrono::Local::now().format("%Y-%m-%d").to_string(); // get today's date in YYYY-MM-DD format
 
+    // AND leagues == "Updating" ??? -> need to check what it is before and after updating
     for status in &event_status.status {
         if status.date == today {
             return Ok(true); // return true if today's date is found in the status vector
@@ -75,6 +78,13 @@ fn check_event_status() -> Result<bool, Error>{
 
 fn get_current_league_standings(league_standings: &Root, player_history: &HashMap<i64, WelcomePlayers>) ->  Result<Vec<PlayerPositions>, Error>{
     let mut result: Vec<PlayerPositions> = Vec::new();
+    let league_potential_out_of_sync = check_event_status()?;
+    let current_gameweek = player_history[&league_standings.standings.results[0].entry].current.len();
+
+    if league_potential_out_of_sync {
+        let live_gameweek_data: LiveEventData = serde_json::from_str(&ureq::get(&*format!("https://fantasy.premierleague.com/api/event/{}/live/", current_gameweek)).call()?.into_string()?)?;
+    }
+
     for player in &league_standings.standings.results {
         let history: &WelcomePlayers = &player_history[&player.entry];
         let current_gameweek = history.current.len()-1;
