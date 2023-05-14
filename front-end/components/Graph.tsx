@@ -12,6 +12,7 @@ const getPointsGraphData = (league_standings: LeagueStanding[], numEvents: numbe
         const eventData = { name: (i+1).toString() };
 
         for (let standing of league_standings) {
+            // @ts-ignore
             eventData[standing.player_name] = standing.events[i].points;
         }
 
@@ -25,6 +26,7 @@ const getPositionsGraphData = (league_standings: LeagueStanding[], numEvents: nu
         const eventData = { name: (i+1).toString() };
 
         for (let standing of league_standings) {
+            // @ts-ignore
             eventData[standing.player_name] = standing.events[i].position;
         }
 
@@ -38,6 +40,7 @@ const getOverallRankPercentileGraphData = (league_standings: LeagueStanding[], n
         const eventData = { name: (i+1).toString() };
 
         for (let standing of league_standings) {
+            // @ts-ignore
             eventData[standing.player_name] = standing.events[i].overall_rank_percentile;
         }
 
