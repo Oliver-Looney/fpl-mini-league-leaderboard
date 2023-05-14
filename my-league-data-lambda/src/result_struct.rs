@@ -26,7 +26,8 @@ pub struct EventHistory {
     pub rank: i64,
     pub overall_rank: i64,
     pub rank_percentile: f64,
-    pub overall_rank_percentile: f64
+    pub overall_rank_percentile: f64,
+    pub position: i64,
 }
 
 #[derive(Debug, Serialize, Deserialize)]

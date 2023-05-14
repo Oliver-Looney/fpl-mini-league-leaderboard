@@ -8,7 +8,6 @@ interface Props {
 const CurrentLeagueTable: React.FC<Props> = ({ current_league_standings }) => {
 
     return (<div className="card">
-        <h2>Current Standings</h2>
         <table>
             <thead>
             <tr>

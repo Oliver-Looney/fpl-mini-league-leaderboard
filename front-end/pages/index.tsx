@@ -46,7 +46,7 @@ export default function Home() {
         <div className="container">
         <h1>The David Goggins Invitational</h1>
         <div>
-            <CurrentLeagueTable current_league_standings={apiData.league_standings}/>
+            <CurrentLeagueOutput league_data={apiData}/>
             <br/>
             <LeagueHistory league_history={apiData.league_history}/>
             <br/>

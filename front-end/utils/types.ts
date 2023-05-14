@@ -27,7 +27,7 @@ interface LeagueStanding {
     total:       number;
 }
 
-export interface EventGW {
+interface EventGW {
     event:                   number;
     overall_rank:            number;
     overall_rank_percentile: number;
@@ -35,11 +35,13 @@ export interface EventGW {
     rank:                    number;
     rank_percentile:         number;
     total_points:            number;
+    position:                number;
 }
 
 export type {
     FplMiniLeagueAPIResponse,
     LeagueStanding,
     LeagueHistory,
-    Standing
+    Standing,
+    EventGW
 }

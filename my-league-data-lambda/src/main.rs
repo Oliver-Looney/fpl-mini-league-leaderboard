@@ -23,6 +23,7 @@ use crate::live_event_data::{LiveEventData};
 use crate::manager_picks::ManagerPicks;
 
 // FOR LOCAL TESTING
+
 // #[tokio::main]
 // async fn main() -> Result<(), Error>{
 //     let (league_standings, player_history): (Root, HashMap<i64, WelcomePlayers>) = get_league_standings_and_player_history_from_api().await?;
