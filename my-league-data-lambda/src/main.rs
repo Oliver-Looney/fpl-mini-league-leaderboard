@@ -13,7 +13,7 @@ use aws_lambda_events::encodings::Body;
 use chrono::{Datelike};
 use league_standings::{Root};
 use result_struct::{Output};
-use crate::constants::{MY_FRIEND_LEAGUE_ID, NUMBER_OF_PLAYERS};
+use crate::constants::{MY_FRIEND_LEAGUE_ID, NUMBER_OF_PLAYERS, START_YEAR_OF_MINI_LEAGUE_HISTORY};
 use crate::player::WelcomePlayers;
 use crate::result_struct::{DetailedSeason, EventHistory, PlayerPositions, Season};
 use lambda_runtime::{Error, LambdaEvent};
@@ -142,7 +142,7 @@ fn get_current_league_standings(league_standings: &Root, player_history: &HashMa
 
 fn get_current_league_event_history(player_history: &WelcomePlayers, current_gameweek: usize) -> Vec<EventHistory> {
     let mut events: Vec<EventHistory> = Vec::new();
-    for i in 1.. current_gameweek {
+    for i in 0.. current_gameweek {
         let rank: i64 = player_history.current[i].rank.unwrap_or_else(|| {
             if i > 1 {
                 player_history.current[i - 1].rank.unwrap_or(1)
@@ -178,7 +178,7 @@ fn get_result_seasons(player_history: &HashMap<i64, WelcomePlayers>, league_stan
     let mut end =  chrono::Local::now().year()%100 - 1;
     let mut result: Vec<Season> = Vec::new();
 
-    while start >= 2020 {
+    while start >= START_YEAR_OF_MINI_LEAGUE_HISTORY {
         let fpl_year = format!("{}/{}",start,end);
         start -=1;
         end -=1;

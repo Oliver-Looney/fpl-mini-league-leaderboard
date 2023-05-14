@@ -19,11 +19,22 @@ interface Standing {
 interface LeagueStanding {
     entry_name:  string;
     event_total: number;
+    events:      EventGW[];
     last_rank:   number;
     player_name: string;
     rank:        number;
     rank_sort:   number;
     total:       number;
+}
+
+export interface EventGW {
+    event:                   number;
+    overall_rank:            number;
+    overall_rank_percentile: number;
+    points:                  number;
+    rank:                    number;
+    rank_percentile:         number;
+    total_points:            number;
 }
 
 export type {
