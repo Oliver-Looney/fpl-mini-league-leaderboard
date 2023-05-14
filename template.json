@@ -1,0 +1,78 @@
+{
+	"Transform": "AWS::Serverless-2016-10-31",
+	"Resources": {
+		"Api": {
+			"Type": "AWS::Serverless::Api",
+			"Properties": {
+				"Name": {
+					"Fn::Sub": [
+						"${ResourceName} From Stack ${AWS::StackName}",
+						{
+							"ResourceName": "Api"
+						}
+					]
+				},
+				"StageName": "Prod",
+				"DefinitionBody": {
+					"openapi": "3.0",
+					"info": {},
+					"paths": {
+						"/": {
+							"x-amazon-apigateway-any-method": {
+								"x-amazon-apigateway-integration": {
+									"httpMethod": "POST",
+									"type": "aws_proxy",
+									"uri": {
+										"Fn::Sub": "arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${Function.Arn}/invocations"
+									}
+								},
+								"responses": {}
+							}
+						}
+					}
+				},
+				"EndpointConfiguration": "REGIONAL",
+				"TracingEnabled": true
+			}
+		},
+		"Function": {
+			"Type": "AWS::Serverless::Function",
+			"Properties": {
+				"Description": {
+					"Fn::Sub": [
+						"Stack ${AWS::StackName} Function ${ResourceName}",
+						{
+							"ResourceName": "Function"
+						}
+					]
+				},
+				"CodeUri": "my-league-data-lambda/src",
+				"Runtime": "provided.al2",
+				"MemorySize": 128,
+				"Timeout": 5,
+				"Tracing": "Active",
+				"Events": {
+					"ApiANY": {
+						"Type": "Api",
+						"Properties": {
+							"Path": "/",
+							"Method": "ANY",
+							"RestApiId": {
+								"Ref": "Api"
+							}
+						}
+					}
+				}
+			}
+		},
+		"FunctionLogGroup": {
+			"Type": "AWS::Logs::LogGroup",
+			"DeletionPolicy": "Retain",
+			"Properties": {
+				"LogGroupName": {
+					"Fn::Sub": "/aws/lambda/${Function}"
+				}
+			}
+		}
+	}
+}
