@@ -2,7 +2,7 @@ import Head from 'next/head'
 import {FplMiniLeagueAPIResponse} from "@/utils/types";
 import {useEffect, useState} from "react";
 import axios from "axios";
-import CurrentLeagueTable from "@/components/CurrentLeagueTable";
+import CurrentLeagueOutput from "@/components/CurrentLeagueOutput";
 import LeagueHistory from "@/components/LeagueHistory";
 import DetailedHistoryTable from "@/components/DetailedLeagueHistory";
 import LeaderBoard from "@/components/LeaderBoard";
