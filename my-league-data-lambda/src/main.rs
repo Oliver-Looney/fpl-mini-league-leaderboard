@@ -4,6 +4,7 @@ mod player;
 mod result_struct;
 mod event_status;
 mod live_event_data;
+mod manager_picks;
 
 use std::collections::HashMap;
 use aws_lambda_events::apigw::{ApiGatewayProxyRequest, ApiGatewayProxyResponse};
@@ -19,6 +20,21 @@ use lambda_runtime::{Error, LambdaEvent};
 use serde_json::json;
 use crate::event_status::EventStatus;
 use crate::live_event_data::{LiveEventData};
+use crate::manager_picks::ManagerPicks;
+
+// FOR LOCAL TESTING
+// #[tokio::main]
+// async fn main() -> Result<(), Error>{
+//     let (league_standings, player_history): (Root, HashMap<i64, WelcomePlayers>) = get_league_standings_and_player_history_from_api().await?;
+//
+//     let output_result = Output {
+//         league_standings: get_current_league_standings(&league_standings, &player_history)?,
+//         league_history: get_result_seasons(&player_history, &league_standings)?
+//     };
+//     println!("{:#?}", output_result);
+//     Ok(())
+// }
+
 
 #[tokio::main]
 async fn main() -> Result<(), Error>{
@@ -63,11 +79,14 @@ async fn get_league_standings_and_player_history_from_api() -> Result<(Root, Has
     Ok((league_standings, player_history))
 }
 
-fn check_event_status() -> Result<bool, Error>{
+fn is_league_data_out_of_sync() -> Result<bool, Error>{
     let event_status: EventStatus = serde_json::from_str(&ureq::get("https://fantasy.premierleague.com/api/event-status/").call()?.into_string()?)?;
+    if event_status.leagues == "Updated" {
+        return Ok(false);
+    }
     let today = chrono::Local::now().format("%Y-%m-%d").to_string(); // get today's date in YYYY-MM-DD format
-
     // AND leagues == "Updating" ??? -> need to check what it is before and after updating
+    // leagues = "", "updating", "updated"
     for status in &event_status.status {
         if status.date == today {
             return Ok(true); // return true if today's date is found in the status vector
@@ -76,27 +95,45 @@ fn check_event_status() -> Result<bool, Error>{
     Ok(false) // return false if today's date is not found in the status vector
 }
 
+fn get_player_current_points(history: &WelcomePlayers, current_gameweek: usize, live_gameweek_data: &Option<LiveEventData>, player_entry: &i64) -> Result<(i64, i64), Error> {
+    match live_gameweek_data {
+        Some(live_data) => {// get manager's entry's picks
+            let manager_picks: ManagerPicks = serde_json::from_str(&ureq::get(&*format!("https://fantasy.premierleague.com/api/entry/{}/event/{}/picks/", player_entry, current_gameweek)).call()?.into_string()?)?;
+            let mut sum_of_points: i64 = 0;
+
+            for pick in manager_picks.picks {
+                sum_of_points += (&live_data.elements[pick.element as usize - 1].stats.total_points) * pick.multiplier;
+            }
+            Ok((sum_of_points,history.current[current_gameweek-1].total_points - history.current[current_gameweek-1].points + sum_of_points))
+        },
+        None => {
+            println!("Live gameweek data is None. main.rs, get_player_current_points");
+            return Ok((history.current[current_gameweek-1].points, history.current[current_gameweek-1].total_points))
+        }
+    }
+}
+
 fn get_current_league_standings(league_standings: &Root, player_history: &HashMap<i64, WelcomePlayers>) ->  Result<Vec<PlayerPositions>, Error>{
     let mut result: Vec<PlayerPositions> = Vec::new();
-    let league_potential_out_of_sync = check_event_status()?;
     let current_gameweek = player_history[&league_standings.standings.results[0].entry].current.len();
 
-    if league_potential_out_of_sync {
-        let live_gameweek_data: LiveEventData = serde_json::from_str(&ureq::get(&*format!("https://fantasy.premierleague.com/api/event/{}/live/", current_gameweek)).call()?.into_string()?)?;
+    let mut live_gameweek_data:Option<LiveEventData> = None;
+    if is_league_data_out_of_sync()? {
+        live_gameweek_data = Some(serde_json::from_str(&ureq::get(&*format!("https://fantasy.premierleague.com/api/event/{}/live/", current_gameweek)).call()?.into_string()?)?);
     }
 
     for player in &league_standings.standings.results {
-        let history: &WelcomePlayers = &player_history[&player.entry];
-        let current_gameweek = history.current.len()-1;
+        let (event_points, total_points) = get_player_current_points(&player_history[&player.entry], current_gameweek, &live_gameweek_data, &player.entry)?;
+
         result.push(PlayerPositions {
-            event_total: history.current[current_gameweek].points,
+            event_total: event_points,
             player_name: player.player_name.clone(),
             rank: player.rank,
             last_rank: player.last_rank,
             rank_sort: player.rank_sort,
-            total:  history.current[current_gameweek].total_points,
+            total: total_points,
             entry_name: player.entry_name.clone(),
-            events: get_current_league_event_history(history, current_gameweek)
+            events: get_current_league_event_history(&player_history[&player.entry], current_gameweek)
         });
     }
     result = sort_by_total_points(result);
@@ -105,7 +142,7 @@ fn get_current_league_standings(league_standings: &Root, player_history: &HashMa
 
 fn get_current_league_event_history(player_history: &WelcomePlayers, current_gameweek: usize) -> Vec<EventHistory> {
     let mut events: Vec<EventHistory> = Vec::new();
-    for i in 1..= current_gameweek {
+    for i in 1.. current_gameweek {
         let rank: i64 = player_history.current[i].rank.unwrap_or_else(|| {
             if i > 1 {
                 player_history.current[i - 1].rank.unwrap_or(1)
