@@ -16,11 +16,13 @@ export default function Home() {
             return response.data;
         } catch (error) {
             console.error(error);
+            setErrorWhileFetchingDataFlag(true);
             throw error;
         }
     }
 
     const [apiData, setApiData] = useState<FplMiniLeagueAPIResponse | null>(null);
+    const [errorWhileFetchingDataFlag, setErrorWhileFetchingDataFlag] = useState<boolean>(false);
 
     useEffect(() => {
         async function fetchData() {
@@ -31,9 +33,6 @@ export default function Home() {
         fetchData();
     }, []);
 
-    if (!apiData) {
-        return <div>Loading...</div>;
-    }
   return (
     <>
       <Head>
@@ -45,17 +44,23 @@ export default function Home() {
         <Header/>
         <div className="container">
         <h1>The David Goggins Invitational</h1>
-        <div>
-            <CurrentLeagueOutput league_data={apiData}/>
-            <br/>
-            <LeagueHistory league_history={apiData.league_history}/>
-            <br/>
-            <DetailedHistoryTable league_history={apiData.league_history}/>
-            <br/>
-            <LeaderBoard data={apiData}/>
-            <br/>
-            <CurrentWinner league_history={apiData.league_history}/>
-        </div>
+            {!apiData ?
+                errorWhileFetchingDataFlag ?
+                    <div>Oh no! An error has occurred.</div> :
+                    <div>Loading...</div>
+                :
+            <div>
+                <CurrentLeagueOutput league_data={apiData}/>
+                <br/>
+                <LeagueHistory league_history={apiData.league_history}/>
+                <br/>
+                <DetailedHistoryTable league_history={apiData.league_history}/>
+                <br/>
+                <LeaderBoard data={apiData}/>
+                <br/>
+                <CurrentWinner league_history={apiData.league_history}/>
+            </div>
+            }
             <br/>
         </div>
     </>

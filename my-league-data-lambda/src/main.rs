@@ -7,6 +7,7 @@ mod live_event_data;
 mod manager_picks;
 
 use std::collections::HashMap;
+use std::ops::Index;
 use aws_lambda_events::apigw::{ApiGatewayProxyRequest, ApiGatewayProxyResponse};
 use aws_lambda_events::chrono;
 use aws_lambda_events::encodings::Body;
@@ -138,6 +139,32 @@ fn get_current_league_standings(league_standings: &Root, player_history: &HashMa
         });
     }
     result = sort_by_total_points(result);
+    result = set_positions_in_mini_league_for_each_event(result, current_gameweek)?;
+
+    result.iter_mut().for_each(|player_result| {
+        let last_event_index = player_result.events.len() - 1;
+        player_result.events[last_event_index].points = player_result.event_total;
+        player_result.events[last_event_index].total_points = player_result.total;
+    });
+    Ok(result)
+}
+
+fn set_positions_in_mini_league_for_each_event(mut result: Vec<PlayerPositions>, current_gameweek: usize) -> Result<Vec<PlayerPositions>, Error> {
+    let mut event_index: usize = 0;
+    while event_index < current_gameweek {
+        let mut points = Vec::new();
+        result.iter().for_each(|player_result| {
+            points.push(player_result.events[event_index].total_points);
+        });
+        points.sort_by(|a, b| b.cmp(a));
+        for player_result in &mut result {
+            let event = &mut player_result.events[event_index];
+            let rank = points.iter().position(|&x| x == event.total_points)
+                            .map(|i| i + 1).unwrap_or(0); // Get the index of the player's total points and add 1 to get the rank
+            event.position = rank as i64;
+        }
+        event_index += 1;
+    }
     Ok(result)
 }
 
@@ -168,6 +195,7 @@ fn get_current_league_event_history(player_history: &WelcomePlayers, current_gam
                 overall_rank,
                 rank_percentile: (rank as f64 / NUMBER_OF_PLAYERS as f64) * 100.0,
                 overall_rank_percentile: (overall_rank as f64 / NUMBER_OF_PLAYERS as f64) * 100.0,
+                position: 0
             }
         );
     }
