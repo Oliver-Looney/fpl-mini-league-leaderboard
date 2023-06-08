@@ -8,6 +8,11 @@ import DetailedHistoryTable from "@/components/DetailedLeagueHistory";
 import LeaderBoard from "@/components/LeaderBoard";
 import CurrentWinner from "@/components/CurrentWinner";
 import Header from "@/components/Header";
+import CurrentLeagueOutputLoading from "@/components/loading/CurrentLeagueOutputLoading";
+import LeagueHistoryLoading from "@/components/loading/LeagueHistoryLoading";
+import DetailedHistoryTableLoading from "@/components/loading/DetailedHistoryTableLoading";
+import LeaderBoardLoading from "@/components/loading/LeaderboardLoading";
+import CurrentWinnerLoading from "@/components/loading/CurrentWinnerLoading";
 
 export default function Home() {
     async function fetchFplMiniLeagueApiData(): Promise<FplMiniLeagueAPIResponse> {
@@ -45,24 +50,34 @@ export default function Home() {
         <div className="container">
         <h1>The David Goggins Invitational</h1>
             {!apiData ?
-                errorWhileFetchingDataFlag ?
-                    <div>Oh no! An error has occurred.</div> :
-                    <div>Loading...</div>
-                :
-            <div>
-                <CurrentLeagueOutput league_data={apiData}/>
-                <br/>
-                <LeagueHistory league_history={apiData.league_history}/>
-                <br/>
-                <DetailedHistoryTable league_history={apiData.league_history}/>
-                <br/>
-                <LeaderBoard data={apiData}/>
-                <br/>
-                <CurrentWinner league_history={apiData.league_history}/>
-            </div>
-            }
+                errorWhileFetchingDataFlag ? <div>Oh no! An error has occurred.</div>
+                    : PageContentLoading()
+                : PageContent(apiData)}
             <br/>
         </div>
     </>
   )
 }
+const PageContentLoading = () => <div>
+    <CurrentLeagueOutputLoading/>
+    <br/>
+    <LeagueHistoryLoading/>
+    <br/>
+    <DetailedHistoryTableLoading/>
+    <br/>
+    <LeaderBoardLoading/>
+    <br/>
+    <CurrentWinnerLoading/>
+</div>;
+
+const PageContent = (apiData: FplMiniLeagueAPIResponse) => <div>
+    <CurrentLeagueOutput league_data={apiData}/>
+    <br/>
+    <LeagueHistory league_history={apiData.league_history}/>
+    <br/>
+    <DetailedHistoryTable league_history={apiData.league_history}/>
+    <br/>
+    <LeaderBoard data={apiData}/>
+    <br/>
+    <CurrentWinner league_history={apiData.league_history}/>
+</div>;
