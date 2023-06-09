@@ -23,6 +23,9 @@ use crate::event_status::EventStatus;
 use crate::live_event_data::{LiveEventData};
 use crate::manager_picks::ManagerPicks;
 
+// build cmd:
+// cargo lambda build --release --output-format zip
+
 // FOR LOCAL TESTING
 
 // #[tokio::main]
@@ -207,6 +210,8 @@ fn get_result_seasons(player_history: &HashMap<i64, WelcomePlayers>, league_stan
     let mut end =  chrono::Local::now().year()%100 - 1;
     let mut result: Vec<Season> = Vec::new();
 
+    add_just_finished_season_results_if_needed(&mut result, &(start+1), &(end+1), &player_history, league_standings);
+
     while start >= START_YEAR_OF_MINI_LEAGUE_HISTORY {
         let fpl_year = format!("{}/{}",start,end);
         start -=1;
@@ -221,6 +226,21 @@ fn get_result_seasons(player_history: &HashMap<i64, WelcomePlayers>, league_stan
         result.push(new_season);
     }
     Ok(result)
+}
+
+fn add_just_finished_season_results_if_needed(result: &mut Vec<Season>, first_year: &i32, second_year: &i32, player_history: &&HashMap<i64, WelcomePlayers>, league_standings: &Root) {
+    let current_gameweek = player_history[&league_standings.standings.results[0].entry].current.len();
+    // second add should be live gameweek complete & updated
+    if current_gameweek == 38 && true {
+        let mut new_season: Season = Season {
+            years: format!("{}/{}",first_year, second_year),
+            // need to implement new get_current_season_standings. Or can I use func already making current season table?
+            standings: get_past_season_standings(&format!("{}/{}",first_year-1, second_year-1), player_history, league_standings)
+        };
+        sort_seasons_by_points(&mut new_season.standings);
+
+        result.push(new_season);
+    }
 }
 
 fn get_past_season_standings(years: &String, player_history: &HashMap<i64, WelcomePlayers>, league_standings: &Root) -> Vec<DetailedSeason> {
