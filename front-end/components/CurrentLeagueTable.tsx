@@ -6,7 +6,7 @@ interface Props {
 }
 
 const CurrentLeagueTable: React.FC<Props> = ({ current_league_standings }) => {
-    return (<div className="card">
+    return (<div>
         <table>
             <thead>
             <tr>
@@ -18,7 +18,7 @@ const CurrentLeagueTable: React.FC<Props> = ({ current_league_standings }) => {
             </tr>
             </thead>
             <tbody>
-            {current_league_standings.map((standing, index) => (
+            {current_league_standings.map((standing) => (
                 <tr key={standing.entry_name}>
                     <td>{standing.rank}</td>
                     <td>{standing.entry_name}</td>

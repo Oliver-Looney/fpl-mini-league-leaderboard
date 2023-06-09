@@ -69,12 +69,15 @@ const Graph: React.FC<Props> = ({ league_standings }) => {
         }
     }, [selectedData]);
 
-    let colors = ['blue', 'red', 'green', 'black']
+    const colors: { [key: string]: string } = {
+        'Oliver Looney': 'blue',
+        'Declan Mallon': 'red',
+        'Daniel Rafferty': 'green',
+        'Thomas Matthews': 'black'
+    }
 
     return (
-        <div className="card">
-            <h2>Graph</h2>
-
+        <div>
             <div>
                 <label htmlFor="data-select">Select Data:</label>
                 <select id="data-select" value={selectedData} onChange={(e) => setSelectedData(e.target.value)}>
@@ -91,8 +94,8 @@ const Graph: React.FC<Props> = ({ league_standings }) => {
                     <YAxis />
                     <Tooltip />
                     <Legend />
-                    {league_standings.map((standing, index) => (
-                        <Line key={standing.player_name} type="monotone" dataKey={standing.player_name} stroke={colors[index]} />
+                    {league_standings.map((standing) => (
+                        <Line key={standing.player_name} type="monotone" dataKey={standing.player_name} stroke={colors[standing.player_name]} />
                     ))}
                 </LineChart>
             </div>
