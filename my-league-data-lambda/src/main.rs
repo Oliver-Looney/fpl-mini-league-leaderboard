@@ -30,11 +30,10 @@ use crate::manager_picks::ManagerPicks;
 
 // #[tokio::main]
 // async fn main() -> Result<(), Error>{
-//     let (league_standings, player_history): (Root, HashMap<i64, WelcomePlayers>) = get_league_standings_and_player_history_from_api().await?;
-//
+//     let (league_standings, player_history, event_status): (Root, HashMap<i64, WelcomePlayers>, EventStatus) = get_league_standings_and_player_history_from_api().await?;
 //     let output_result = Output {
-//         league_standings: get_current_league_standings(&league_standings, &player_history)?,
-//         league_history: get_result_seasons(&player_history, &league_standings)?
+//         league_standings: get_current_league_standings(&league_standings, &player_history, &event_status).await?,
+//         league_history: get_result_seasons(&player_history, &league_standings, &event_status).await?
 //     };
 //     println!("{:#?}", output_result);
 //     Ok(())
@@ -49,11 +48,11 @@ async fn main() -> Result<(), Error>{
 }
 
 async fn handler(_lambda_event: LambdaEvent<ApiGatewayProxyRequest>) -> Result<ApiGatewayProxyResponse, Error> {
-    let (league_standings, player_history): (Root, HashMap<i64, WelcomePlayers>) = get_league_standings_and_player_history_from_api().await?;
+    let (league_standings, player_history, event_status): (Root, HashMap<i64, WelcomePlayers>, EventStatus) = get_league_standings_and_player_history_from_api().await?;
 
     let output_result = Output {
-        league_standings: get_current_league_standings(&league_standings, &player_history)?,
-        league_history: get_result_seasons(&player_history, &league_standings)?
+        league_standings: get_current_league_standings(&league_standings, &player_history, &event_status).await?,
+        league_history: get_result_seasons(&player_history, &league_standings, &event_status).await?
     };
     return Ok(ApiGatewayProxyResponse{
         status_code: 200,
@@ -66,7 +65,7 @@ async fn handler(_lambda_event: LambdaEvent<ApiGatewayProxyRequest>) -> Result<A
     })
 }
 
-async fn get_league_standings_and_player_history_from_api() -> Result<(Root, HashMap<i64, WelcomePlayers>), Error> {
+async fn get_league_standings_and_player_history_from_api() -> Result<(Root, HashMap<i64, WelcomePlayers>, EventStatus), Error> {
     let body = ureq::get(&format!("https://fantasy.premierleague.com/api/leagues-classic/{}/standings/", MY_FRIEND_LEAGUE_ID))
         .call()?
         .into_string()?;
@@ -81,11 +80,11 @@ async fn get_league_standings_and_player_history_from_api() -> Result<(Root, Has
             player_from_fpl
         );
     }
-    Ok((league_standings, player_history))
+    let event_status: EventStatus = serde_json::from_str(&ureq::get("https://fantasy.premierleague.com/api/event-status/").call()?.into_string()?)?;
+    Ok((league_standings, player_history, event_status))
 }
 
-fn is_league_data_out_of_sync() -> Result<bool, Error>{
-    let event_status: EventStatus = serde_json::from_str(&ureq::get("https://fantasy.premierleague.com/api/event-status/").call()?.into_string()?)?;
+fn is_league_data_out_of_sync(event_status: &EventStatus) -> Result<bool, Error>{
     if event_status.leagues == "Updated" {
         return Ok(false);
     }
@@ -118,12 +117,12 @@ fn get_player_current_points(history: &WelcomePlayers, current_gameweek: usize, 
     }
 }
 
-fn get_current_league_standings(league_standings: &Root, player_history: &HashMap<i64, WelcomePlayers>) ->  Result<Vec<PlayerPositions>, Error>{
+async fn get_current_league_standings(league_standings: &Root, player_history: &HashMap<i64, WelcomePlayers>, event_status: &EventStatus) ->  Result<Vec<PlayerPositions>, Error>{
     let mut result: Vec<PlayerPositions> = Vec::new();
     let current_gameweek = player_history[&league_standings.standings.results[0].entry].current.len();
 
     let mut live_gameweek_data:Option<LiveEventData> = None;
-    if is_league_data_out_of_sync()? {
+    if is_league_data_out_of_sync(event_status)? {
         live_gameweek_data = Some(serde_json::from_str(&ureq::get(&*format!("https://fantasy.premierleague.com/api/event/{}/live/", current_gameweek)).call()?.into_string()?)?);
     }
 
@@ -205,12 +204,12 @@ fn get_current_league_event_history(player_history: &WelcomePlayers, current_gam
     events
 }
 
-fn get_result_seasons(player_history: &HashMap<i64, WelcomePlayers>, league_standings: &Root) -> Result<Vec<Season>, Error> {
+async fn get_result_seasons(player_history: &HashMap<i64, WelcomePlayers>, league_standings: &Root, event_status: &EventStatus) -> Result<Vec<Season>, Error> {
     let mut start =  chrono::Local::now().year() - 2;
     let mut end =  chrono::Local::now().year()%100 - 1;
     let mut result: Vec<Season> = Vec::new();
 
-    add_just_finished_season_results_if_needed(&mut result, &(start+1), &(end+1), &player_history, league_standings);
+    add_just_finished_season_results_if_needed(&mut result, &(start+1), &(end+1), &player_history, league_standings, event_status);
 
     while start >= START_YEAR_OF_MINI_LEAGUE_HISTORY {
         let fpl_year = format!("{}/{}",start,end);
@@ -228,17 +227,25 @@ fn get_result_seasons(player_history: &HashMap<i64, WelcomePlayers>, league_stan
     Ok(result)
 }
 
-fn add_just_finished_season_results_if_needed(result: &mut Vec<Season>, first_year: &i32, second_year: &i32, player_history: &&HashMap<i64, WelcomePlayers>, league_standings: &Root) {
+fn add_just_finished_season_results_if_needed(result: &mut Vec<Season>, first_year: &i32, second_year: &i32, player_history: &HashMap<i64, WelcomePlayers>, league_standings: &Root, event_status: &EventStatus) {
     let current_gameweek = player_history[&league_standings.standings.results[0].entry].current.len();
-    // second add should be live gameweek complete & updated
-    if current_gameweek == 38 && true {
+
+    if current_gameweek == 38 && event_status.leagues == "Updated" {
         let mut new_season: Season = Season {
             years: format!("{}/{}",first_year, second_year),
-            // need to implement new get_current_season_standings. Or can I use func already making current season table?
-            standings: get_past_season_standings(&format!("{}/{}",first_year-1, second_year-1), player_history, league_standings)
+            standings: Vec::new()
         };
-        sort_seasons_by_points(&mut new_season.standings);
+        for player in &league_standings.standings.results {
+            new_season.standings.push( DetailedSeason {
+                player_name: player.player_name.clone(),
+                rank: player.rank,
+                points: player.total,
+                entry_name: player.entry_name.clone(),
+                position: 0,
+            });
+        }
 
+        sort_seasons_by_points(&mut new_season.standings);
         result.push(new_season);
     }
 }
