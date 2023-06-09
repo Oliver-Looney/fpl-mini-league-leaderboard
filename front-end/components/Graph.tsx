@@ -84,16 +84,18 @@ const Graph: React.FC<Props> = ({ league_standings }) => {
                 </select>
             </div>
 
-            <LineChart width={1000} height={300} data={chartData}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <YAxis />
-                <Tooltip />
-                <Legend />
-                {league_standings.map((standing, index) => (
-                    <Line key={standing.player_name} type="monotone" dataKey={standing.player_name} stroke={colors[index]} />
-                ))}
-            </LineChart>
+            <div style={{ width: '100%', overflowX: 'auto', overflowY: 'hidden'}}>
+                <LineChart width={1000} height={300} data={chartData}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip />
+                    <Legend />
+                    {league_standings.map((standing, index) => (
+                        <Line key={standing.player_name} type="monotone" dataKey={standing.player_name} stroke={colors[index]} />
+                    ))}
+                </LineChart>
+            </div>
         </div>
     );
 };

@@ -16,7 +16,7 @@ const LeagueHistoryTable: React.FC<Props> = ({ league_history }) => {
         <table>
             <thead>
             <tr>
-                <th>Year</th>
+                <th>Season</th>
                 <th>Manager</th>
             </tr>
             </thead>
