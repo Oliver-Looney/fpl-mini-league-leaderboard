@@ -32,11 +32,16 @@ const LeaderBoard: FC<Props> = ({ data }) => {
     return (
         <div className="card">
             <h2>Leaderboard</h2>
-            {sortedPlayers.map(([player, wins], index) => (
-                <div key={index}>
-                    {player.split(' ')[0]}: {wins}
-                </div>
-            ))}
+            <table>
+                <tbody>
+                {sortedPlayers.map(([player, wins], index) => (
+                    <tr key={index}>
+                        <td>{player.split(' ')[0]}</td>
+                        <td>{wins}</td>
+                    </tr>
+                ))}
+                </tbody>
+            </table>
         </div>
     );
 };

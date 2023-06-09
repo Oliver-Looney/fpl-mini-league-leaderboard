@@ -10,6 +10,7 @@ const DetailedHistoryTable: React.FC<Props> = ({ league_history }) => {
         <div className="card">
             <h2>Detailed History</h2>
             {league_history.map((season, index) => (
+                <>
                 <div key={index} className="card">
                     <h3 className="post-date">{season.years}</h3>
                     <table>
@@ -34,6 +35,8 @@ const DetailedHistoryTable: React.FC<Props> = ({ league_history }) => {
                     </table>
                     <br/>
                 </div>
+                    <br/>
+                </>
             ))}
         </div>
     );

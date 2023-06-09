@@ -63,9 +63,9 @@ const PageContentLoading = () => <div>
     <br/>
     <LeagueHistoryLoading/>
     <br/>
-    <DetailedHistoryTableLoading/>
-    <br/>
     <LeaderBoardLoading/>
+    <br/>
+    <DetailedHistoryTableLoading/>
     <br/>
     <CurrentWinnerLoading/>
 </div>;
@@ -75,9 +75,9 @@ const PageContent = (apiData: FplMiniLeagueAPIResponse) => <div>
     <br/>
     <LeagueHistory league_history={apiData.league_history}/>
     <br/>
-    <DetailedHistoryTable league_history={apiData.league_history}/>
-    <br/>
     <LeaderBoard data={apiData}/>
+    <br/>
+    <DetailedHistoryTable league_history={apiData.league_history}/>
     <br/>
     <CurrentWinner league_history={apiData.league_history}/>
 </div>;
