@@ -278,8 +278,7 @@ table {
   border-radius: 10px;
   text-align: center; /* Center align table content */
   table-layout: fixed; /* Fix the table layout */
-  margin-top: 15px;
-  margin-bottom: 20px;
+  margin: 15px auto 20px; /* Center the table horizontally with auto margin */
 }
 
 table th,
