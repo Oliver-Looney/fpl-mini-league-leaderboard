@@ -1,6 +1,9 @@
+import {IRoundProps} from "react-brackets";
+
 interface FplMiniLeagueAPIResponse {
     league_history:   LeagueHistory[];
     league_standings: LeagueStanding[];
+    league_cup: IRoundProps[];
 }
 
 interface LeagueHistory {

@@ -1,39 +1,9 @@
 import {Bracket, IRenderSeedProps, IRoundProps, Seed, SeedItem, SeedTeam} from 'react-brackets';
 import React from "react";
 
-const rounds: IRoundProps[] = [
-    {
-        title: 'Semi Finals',
-        seeds: [
-            {
-                id: 1,
-                date: "Gameweek 37",
-                teams: [
-                    { name: 'Oliver Looney', player_name: "Boat Crew 2", points: 23, entry: 563443 },
-                    { name: 'Team B', "points": 14 }
-                ],
-                winner: "Oliver Looney"
-            },
-            {
-                id: 2,
-                date: "Gameweek 37",
-                teams: [{ name: 'Team C', points: 65 }, { name: 'Team D', points: 43 }],
-                winner: "Team C"
-            },
-        ],
-    },
-    {
-        title: 'Final', // from api
-        seeds: [
-            {
-                id: 3, // from api
-                date: "Gameweek 38", // from api or calc ?
-                teams: [{ name: 'Team A', points: 55 }, { name: 'Team C', points: 33 }],
-                winner: "Team A" // from api
-            },
-        ],
-    },
-];
+interface Props {
+    league_cup: IRoundProps[];
+}
 
 // const CustomTitle = ({seed, breakpoint, roundIndex, seedIndex}: IRenderSeedProps) => {
 //     return <div>
@@ -42,7 +12,7 @@ const rounds: IRoundProps[] = [
 //     </div>
 // };
 
-const CustomSeed = ({seed, breakpoint, roundIndex, seedIndex}: IRenderSeedProps) => {
+const CustomSeed = ({seed, breakpoint}: IRenderSeedProps) => {
     // breakpoint passed to Bracket component
     // to check if mobile view is triggered or not
 
@@ -55,7 +25,7 @@ const CustomSeed = ({seed, breakpoint, roundIndex, seedIndex}: IRenderSeedProps)
                         <SeedTeam key={index}
                         style={{
                         whiteSpace: 'pre-line',
-                        fontWeight: seed.teams[value].name == seed.winner ? 'bold' : 'normal',
+                        fontWeight: seed.teams[value].entry == seed.winner ? 'bold' : 'normal',
                         display: 'flex',
                         justifyContent: 'center',
                         alignItems: 'center'
@@ -74,8 +44,10 @@ const CustomSeed = ({seed, breakpoint, roundIndex, seedIndex}: IRenderSeedProps)
         </Seed>
     );
 };
-const CupBrackets = () => {
-    return <Bracket rounds={rounds} renderSeedComponent={CustomSeed}/>;
+const CupBrackets: React.FC<Props> = ({ league_cup }) => {
+    return <div style={{ width: '100%', overflowX: 'auto', overflowY: 'hidden'}}>
+        <Bracket mobileBreakpoint={757} rounds={league_cup} renderSeedComponent={CustomSeed} swipeableProps={{ enableMouseEvents: true, animateHeight: true }}/>
+    </div>
 };
 
 export default CupBrackets;

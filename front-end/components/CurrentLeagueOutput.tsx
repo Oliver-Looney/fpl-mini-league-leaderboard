@@ -32,7 +32,7 @@ const CurrentLeagueOutput: React.FC<Props> = ({ league_data }) => {
             {/*                                                               href="/entry/2213457/event/38"><strong>Invincibulls</strong>Daniel*/}
             {/*        Rafferty</a></td>*/}
             {/*</tr>*/}
-            <CupBrackets/>
+            <CupBrackets league_cup={league_data.league_cup}/>
         </div>
     );
 };
