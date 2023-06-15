@@ -42,13 +42,14 @@ export default function Home() {
     <>
       <Head>
         <title>DG Invitational Leaderboard</title>
-        <meta name="description" content="FPL Mini-League Leaderboard" />
+        <meta name="description" content="Dashboard for Oliver Looney's FPL Mini League, improved current stats and league history" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/league_trophy.jpg" />
       </Head>
         <Header/>
         <div className="container">
         <h1>The David Goggins Invitational</h1>
+            <br/>
             {!apiData ?
                 errorWhileFetchingDataFlag ? <div>Oh no! An error has occurred.</div>
                     : PageContentLoading()

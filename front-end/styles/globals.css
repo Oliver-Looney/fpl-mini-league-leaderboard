@@ -15,7 +15,7 @@ p {
   line-height: 1.8;
 }
 
-. contents-list {
+.contents-list {
   margin: 15px 0;
   line-height: 1.8;
   font-size: 14px;
@@ -64,6 +64,8 @@ footer a {
   margin: auto;
   overflow: auto;
   padding: 0 10px;
+  text-align: center; /* Center align all text */
+  align-items: center;
 }
 
 .btn {
@@ -154,10 +156,6 @@ footer a {
   padding: 15px 30px;
 }
 
-.card-buttons {
-
-}
-
 .post-title {
   margin: 10px 0;
 }
@@ -166,19 +164,6 @@ footer a {
   background: #f4f4f4;
   margin-bottom: 20px;
   padding: 3px 10px;
-}
-
-.post-body ul,
-ol {
-  line-height: 1.8;
-  margin: 10px 0px 0px 25px;
-}
-
-.post-body pre {
-  background: #f4f4f4;
-  padding: 20px;
-  margin: 20px 0;
-  line-height: 2.3;
 }
 
 @media (max-width: 1024px) {
@@ -291,4 +276,29 @@ textarea::-webkit-scrollbar-track {
   100% {
     opacity: 0.4;
   }
+}
+
+table {
+  width: 90%;
+  margin: 0 auto; /* Center the table horizontally */
+  border-collapse: collapse;
+  border-radius: 10px; /* Rounded corners */
+  margin-top: 15px;
+  margin-bottom: 20px;
+}
+
+table th,
+table td {
+  padding: 10px;
+  text-align: left;
+  border-bottom: 1px solid #ccc;
+}
+
+table th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+}
+
+table tr:hover {
+  background-color: #f9f9f9;
 }
