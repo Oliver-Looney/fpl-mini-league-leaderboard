@@ -20,7 +20,7 @@ use league_standings::Root;
 use result_struct::Output;
 use crate::constants::{MY_FRIEND_LEAGUE_ID};
 use crate::player::WelcomePlayers;
-use crate::result_struct::{CupMatches, DetailedSeason, EventHistory, PlayerPositions, Season};
+use crate::result_struct::{DetailedSeason, EventHistory, PlayerPositions, Season};
 use lambda_runtime::{Error, LambdaEvent};
 use serde_json::json;
 use ureq::Agent;
