@@ -171,14 +171,7 @@ footer a {
     grid-template-columns: repeat(2, 1fr);
   }
 }
-@media (max-width: 512px) {
-  .posts {
-    grid-template-columns: 1fr;
-  }
-  .posts-page-nav-buttons {
-    flex-direction: column;
-  }
-}
+
 
 input {
   font-size: 110%;
@@ -280,9 +273,11 @@ textarea::-webkit-scrollbar-track {
 
 table {
   width: 90%;
-  margin: 0 auto; /* Center the table horizontally */
+  max-width: 100%;
   border-collapse: collapse;
-  border-radius: 10px; /* Rounded corners */
+  border-radius: 10px;
+  text-align: center; /* Center align table content */
+  table-layout: fixed; /* Fix the table layout */
   margin-top: 15px;
   margin-bottom: 20px;
 }
@@ -290,7 +285,7 @@ table {
 table th,
 table td {
   padding: 10px;
-  text-align: left;
+  text-align: center; /* Center align table cell content */
   border-bottom: 1px solid #ccc;
 }
 
@@ -301,4 +296,15 @@ table th {
 
 table tr:hover {
   background-color: #f9f9f9;
+}
+
+@media (max-width: 526px) {
+  table {
+    width: 100%;
+    overflow-x: auto; /* Enable horizontal scrolling */
+  }
+
+  table td {
+    padding: 3px; /* Reduce padding on smaller screens */
+  }
 }
