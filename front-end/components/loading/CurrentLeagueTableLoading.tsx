@@ -2,7 +2,7 @@ import React from "react";
 import Skeleton from "@/components/Skeleton";
 
 const CurrentLeagueTableLoading: React.FC = () => {
-    return (<div className="card">
+    return (<div>
             <table>
                 <thead>
                 <tr>

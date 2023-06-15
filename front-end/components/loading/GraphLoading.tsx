@@ -4,11 +4,13 @@ import Skeleton from "@/components/Skeleton";
 const GraphLoading: React.FC = () => {
 
     return (
-        <div className="card">
+        <div>
             <h2>Graph</h2>
             <div>
                 <label htmlFor="data-select">Select Data:</label>
-                <Skeleton/>
+                {[0,1,2,3,4,5,6,7,8,9].map(key =>
+                    <Skeleton key={key}/>
+                )}
             </div>
             <Skeleton/>
         </div>

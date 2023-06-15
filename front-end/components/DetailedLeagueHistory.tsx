@@ -2,6 +2,7 @@ import {LeagueHistory} from "@/utils/types";
 import React, {useState} from "react";
 import {prev_data} from "@/utils/prev_season_data";
 import Graph from "@/components/Graph";
+import CupBrackets from "@/components/CupBrackets";
 
 interface Props {
     league_history: LeagueHistory[];
@@ -55,10 +56,11 @@ const DetailedHistoryTable: React.FC<Props> = ({ league_history }) => {
                             {prev_data[season.years] ?
                                 expandedIndices.includes(index) ?
                                     <>
-                                        <h6>Click table to hide graph</h6>
-                                        <Graph league_standings={prev_data[season.years]}/>
+                                        <h6>Click table to hide graph and cup</h6>
+                                        <Graph league_standings={prev_data[season.years].league}/>
+                                        <CupBrackets league_cup={prev_data[season.years].cup}/>
                                     </> :
-                                    <h3>Click table to see graph of this season!</h3> :
+                                    <h3>Click table to see graph and cup of this season!</h3> :
                                 <h5>Unfortunately data from this season was not saved.</h5>
                             }
                         </div>

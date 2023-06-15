@@ -1,9 +1,10 @@
 import {LeagueStanding} from "@/utils/types";
+import {IRoundProps} from "react-brackets";
 
-export const prev_data: { [key: string]: LeagueStanding[] } = {
-    '2022/23':
-    [
-        {
+export const prev_data: { [key: string]: {league: LeagueStanding[], cup: IRoundProps[]} } = {
+    '2022/23':{
+        league: [
+            {
         event_total: 39,
         player_name: "Oliver Looney",
         rank: 1,
@@ -394,7 +395,7 @@ export const prev_data: { [key: string]: LeagueStanding[] } = {
             },
         ],
     },
-     {
+            {
         event_total: 39,
         player_name: "Declan Mallon",
         rank: 2,
@@ -785,7 +786,7 @@ export const prev_data: { [key: string]: LeagueStanding[] } = {
             },
         ],
     },
-     {
+            {
         event_total: 46,
         player_name: "Daniel Rafferty",
         rank: 3,
@@ -1176,7 +1177,7 @@ export const prev_data: { [key: string]: LeagueStanding[] } = {
             },
         ],
     },
-     {
+            {
         event_total: 14,
         player_name: "Thomas Matthews",
         rank: 4,
@@ -1567,5 +1568,78 @@ export const prev_data: { [key: string]: LeagueStanding[] } = {
             },
         ],
     },
-]
+        ],
+        cup: [
+            {
+                seeds: [
+                    {
+                        date: "Gameweek: 37",
+                        event: 37,
+                        id: 140987299,
+                        teams: [
+                            {
+                                entry: 2151063,
+                                name: "it was raining",
+                                player_name: "Declan Mallon",
+                                points: 55
+                            },
+                            {
+                                entry: 563443,
+                                name: "Fantasy Crew 2",
+                                player_name: "Oliver Looney",
+                                points: 58
+                            }
+                        ],
+                        winner: 563443
+                    },
+                    {
+                        date: "Gameweek: 37",
+                        event: 37,
+                        id: 140987300,
+                        teams: [
+                            {
+                                entry: 2213457,
+                                name: "Invincibulls",
+                                player_name: "Daniel Rafferty",
+                                points: 49
+                            },
+                            {
+                                entry: 7392055,
+                                name: "Monkey PUMP",
+                                player_name: "Thomas Matthews",
+                                points: 45
+                            }
+                        ],
+                        winner: 2213457
+                    }
+                ],
+                title: "Semi-final"
+            },
+            {
+                seeds: [
+                    {
+                        date: "Gameweek: 38",
+                        event: 38,
+                        id: 142713160,
+                        teams: [
+                            {
+                                entry: 563443,
+                                name: "Fantasy Crew 2",
+                                player_name: "Oliver Looney",
+                                points: 39
+                            },
+                            {
+                                entry: 2213457,
+                                name: "Invincibulls",
+                                player_name: "Daniel Rafferty",
+                                points: 46
+                            }
+                        ],
+                        winner: 2213457
+                    }
+                ],
+                title: "Final"
+            }
+        ]
+    },
 };
