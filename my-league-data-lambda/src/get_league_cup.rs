@@ -15,30 +15,35 @@ pub async fn get_league_cup_matches(league_cup: &Option<LeagueStandingsCupAPI>) 
                     id: cup_match.id,
                     date: format!("Gameweek: {}", cup_match.event),
                     winner: cup_match.winner,
-                    team1: CupTeamData {
-                        team_name: cup_match.entry_1_name.clone(),
-                        player_name: cup_match.entry_1_player_name.clone(),
-                        points: cup_match.entry_1_points,
-                        entry: cup_match.entry_1_entry,
-                    },
-                    team2: CupTeamData {
-                        team_name: cup_match.entry_2_name.clone(),
-                        player_name: cup_match.entry_2_player_name.clone(),
-                        points: cup_match.entry_2_points,
-                        entry: cup_match.entry_2_entry,
-                    },
+                    event: cup_match.event,
+                    teams: vec![
+                        CupTeamData {
+                            name: cup_match.entry_1_name.clone(),
+                            player_name: cup_match.entry_1_player_name.clone(),
+                            points: cup_match.entry_1_points,
+                            entry: cup_match.entry_1_entry,
+                        },
+                        CupTeamData {
+                            name: cup_match.entry_2_name.clone(),
+                            player_name: cup_match.entry_2_player_name.clone(),
+                            points: cup_match.entry_2_points,
+                            entry: cup_match.entry_2_entry,
+                        },
+                    ],
                 };
 
                 round_map
                     .entry(round_title.clone())
                     .or_insert_with(|| Rounds {
                         title: round_title.clone(),
-                        matches: Vec::new(),
+                        seeds: Vec::new(),
                     })
-                    .matches
+                    .seeds
                     .push(match1);
             }
-            round_map.into_values().collect()
+            let mut sorted_rounds: Vec<Rounds> = round_map.into_values().collect();
+            sorted_rounds.sort_by_key(|round| round.seeds[0].event);
+            sorted_rounds
         }
         None => Vec::new(),
     };

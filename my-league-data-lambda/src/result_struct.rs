@@ -11,7 +11,7 @@ pub struct Output {
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Rounds {
     pub title: String,
-    pub matches: Vec<CupSeedMatches>,
+    pub seeds: Vec<CupSeedMatches>,
 }
 
 #[derive(Debug, Serialize, Deserialize)]
@@ -19,13 +19,13 @@ pub struct CupSeedMatches {
     pub id: i64,
     pub date: String,
     pub winner: i64,
-    pub team1: CupTeamData,
-    pub team2: CupTeamData,
+    pub event: i64,
+    pub teams: Vec<CupTeamData>
 }
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct CupTeamData {
-    pub team_name: String,
+    pub name: String,
     pub player_name: String,
     pub points: i64,
     pub entry: i64
