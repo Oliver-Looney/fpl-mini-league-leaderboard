@@ -19,24 +19,32 @@ const CustomSeed = ({seed, breakpoint}: IRenderSeedProps) => {
     // mobileBreakpoint is required to be passed down to a seed
     return (
         <Seed mobileBreakpoint={breakpoint} style={{ fontSize: 12 }}>
-            <SeedItem>
-                <div>
+            <SeedItem style={{backgroundColor: '#f2f2f2'}}>
+                <div className="card">
                     {[0,1].map((value, index) => (
                         <SeedTeam key={index}
-                        style={{
-                        whiteSpace: 'pre-line',
-                        fontWeight: seed.teams[value].entry == seed.winner ? 'bold' : 'normal',
-                        display: 'flex',
-                        justifyContent: 'center',
-                        alignItems: 'center'
-                    }}
-                >
-                    {seed.teams[value]?.name || 'NO TEAM'}
-                    {/*{'\n'}*/}{' -  '}
-                    {seed.teams[value]?.player_name || 'NO PLAYER'}
-                    {'\n'}
-                    {seed.teams[value]?.points || 'NO POINTS'}
-                </SeedTeam>
+                            style={{
+                                backgroundColor: seed.teams[value].entry === seed.winner ? 'rgb(55, 0, 60)' : '#f9f9f9',
+                                color: seed.teams[value].entry === seed.winner ? '#ffffff' : '#000000',
+                                whiteSpace: 'pre-line',
+                                fontWeight: seed.teams[value].entry === seed.winner ? 'bold' : 'normal',
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                                margin: '5px 5px 5px 5px',
+                                padding: '5px 5px 5px 5px',
+                                borderRadius: '4px',
+                            }}
+                        >
+                            {seed.teams[value]?.name || 'NO TEAM'}
+                            {' - '}
+                            {seed.teams[value]?.player_name || 'NO PLAYER'}
+                            {'\n'}
+                            {seed.teams[value]?.points || 'NO POINTS'}
+                            {seed.teams[value].entry === seed.winner && seed.date === "Gameweek: 38" ? ' 🏆 ' : null}
+                            {seed.teams[value].entry === seed.winner && seed.date !== "Gameweek: 38" ? ' 🥇 ' : null}
+                            {seed.teams[value].entry !== seed.winner ? ' 🥈' : null}
+                        </SeedTeam>
                     ))}
                 </div>
             </SeedItem>

@@ -18,6 +18,8 @@ const DetailedHistoryTable: React.FC<Props> = ({ league_history }) => {
         }
     };
 
+    const rank_emojis: String[] = [' 🏆', ' 🥈', ' 🥉'];
+
     return (
         <div className="card">
             <h2>Detailed History</h2>
@@ -32,23 +34,23 @@ const DetailedHistoryTable: React.FC<Props> = ({ league_history }) => {
                         <h3 className="post-date">{season.years}</h3>
                         <table>
                             <thead>
-                        <tr>
-                            <th>Rank</th>
-                            <th>Team Name</th>
-                            <th>Manager</th>
-                            <th>Total Points</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {season.standings.map((standing, index) => (
-                            <tr key={index}>
-                                <td>{standing.position}</td>
-                                <td>{standing.entry_name}</td>
-                                <td>{standing.player_name.split(' ')[0]}</td>
-                                <td>{standing.points}</td>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Team Name</th>
+                                <th>Manager</th>
+                                <th>Total Points</th>
                             </tr>
-                        ))}
-                        </tbody>
+                            </thead>
+                            <tbody>
+                            {season.standings.map((standing, index) => (
+                                <tr key={index}>
+                                    <td>{index <= 2 ? rank_emojis[index] : standing.position}</td>
+                                    <td>{standing.entry_name}</td>
+                                    <td>{standing.player_name.split(' ')[0]}</td>
+                                    <td>{standing.points}</td>
+                                </tr>
+                            ))}
+                            </tbody>
                         </table>
                     </div>
                         <div>
