@@ -30,14 +30,17 @@ const LeagueHistoryTable: React.FC<Props> = ({ league_history }) => {
                             <td>{entry.year}</td>
                             <td>{entry.player.split(" ")[0]}</td>
                             <td>
+                                {/*if there is cup data for this season*/}
                                 {prev_data[entry.year]?.cup ? (
+                                    // display winners name if cup data exists
                                     prev_data[entry.year].cup[prev_data[entry.year].cup.length - 1].seeds[0].teams[0].entry ===
-                                    prev_data[entry.year].cup[prev_data[entry.year].cup.length - 1].seeds[0].winner ? (
+                                    prev_data[entry.year].cup[prev_data[entry.year].cup.length - 1].seeds[0].winner
+                                        ? (
                                         prev_data[entry.year].cup[prev_data[entry.year].cup.length - 1].seeds[0].teams[0].player_name.split(" ")[0]
                                     ) : (
                                         prev_data[entry.year].cup[prev_data[entry.year].cup.length - 1].seeds[0].teams[1].player_name.split(" ")[0]
                                     )
-                                ) : null}
+                                ) : '---'}
                             </td>
                         </tr>
                     ))}

@@ -53,8 +53,14 @@ const LeaderBoard: FC<Props> = ({ data }) => {
                 {sortedPlayers.map(([player, stats], index) => (
                     <tr key={index}>
                         <td>{player.split(' ')[0]}</td>
-                        <td>{stats.leagues}</td>
-                        <td>{stats.cups}</td>
+                        <td>
+                            <div>{stats.leagues}</div>
+                            <div>{'🏆'.repeat(stats.leagues) || '---'}</div>
+                        </td>
+                        <td>
+                            <div>{stats.cups}</div>
+                            <div>{'🏆 '.repeat(stats.cups) || '---'}</div>
+                        </td>
                     </tr>
                 ))}
                 </tbody>
