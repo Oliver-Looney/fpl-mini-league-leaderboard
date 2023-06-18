@@ -39,6 +39,9 @@ interface EventGW {
     rank_percentile:         number;
     total_points:            number;
     position:                number;
+    value:                   number;
+    event_transfers:         number;
+    points_on_bench:         number;
 }
 
 export type {
