@@ -53,6 +53,9 @@ pub struct EventHistory {
     pub rank_percentile: f64,
     pub overall_rank_percentile: f64,
     pub position: i64,
+    pub event_transfers: i64,
+    pub points_on_bench: i64,
+    pub value: f64
 }
 
 #[derive(Debug, Serialize, Deserialize)]

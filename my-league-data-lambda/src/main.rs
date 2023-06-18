@@ -36,10 +36,10 @@ use crate::manager_picks::ManagerPicks;
 
 // #[tokio::main]
 // async fn main() -> Result<(), Error>{
-//     let start_time = Instant::now();
+//     // let start_time = Instant::now();
 //     let ureq_agent = Agent::new();
 //     let (league_standings, player_history, event_status, league_cup_data): (Root, HashMap<i64, WelcomePlayers>, EventStatus, Option<LeagueStandingsCupAPI>) = get_league_standings_and_player_history_from_api(&ureq_agent).await?;
-//     println!("Elapsed time: {:?}", start_time.elapsed());
+//     // println!("Elapsed time: {:?}", start_time.elapsed());
 //     let output_result = get_output_result(&ureq_agent, &league_standings, &player_history, &event_status, &league_cup_data).await?;
 //     println!("{:#?}", output_result);
 //     Ok(())

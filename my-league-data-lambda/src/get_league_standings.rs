@@ -100,7 +100,12 @@ fn get_current_league_event_history(player_history: &WelcomePlayers, current_gam
                 overall_rank,
                 rank_percentile: (rank as f64 / NUMBER_OF_PLAYERS as f64) * 100.0,
                 overall_rank_percentile: (overall_rank as f64 / NUMBER_OF_PLAYERS as f64) * 100.0,
-                position: 0
+                position: 0,
+                event_transfers: player_history.current[i].event_transfers,
+                points_on_bench: player_history.current[i].points_on_bench,
+                value: player_history.current[i].value as f64 / 10 as f64,
+                // to do idea, get data from this endpoint:
+                // https://fantasy.premierleague.com/api/entry/563443/event/2/picks/
             }
         );
     }
